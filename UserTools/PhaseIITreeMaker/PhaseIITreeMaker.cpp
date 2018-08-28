@@ -35,6 +35,11 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   fRecoTree->Branch("trueDirX",&fTrueDirX,"trueDirX/D");
   fRecoTree->Branch("trueDirY",&fTrueDirY,"trueDirY/D");
   fRecoTree->Branch("trueDirZ",&fTrueDirZ,"trueDirZ/D");
+  fRecoTree->Branch("pointPosVtxX",&fPointPosVtxX,"pointPosVtxX/D");
+  fRecoTree->Branch("pointPosVtxY",&fPointPosVtxY,"pointPosVtxY/D");
+  fRecoTree->Branch("pointPosVtxZ",&fPointPosVtxZ,"pointPosVtxZ/D");
+  fRecoTree->Branch("pointPosVtxTime",&fPointPosVtxTime,"pointPosVtxTime/D");
+  fRecoTree->Branch("pointPosVtxStatus",&fPointPosVtxStatus,"pointPosVtxStatus/I");
   fRecoTree->Branch("seedVtxX",&fSeedVtxX); 
   fRecoTree->Branch("seedVtxY",&fSeedVtxY); 
   fRecoTree->Branch("seedVtxZ",&fSeedVtxZ); 
@@ -109,6 +114,16 @@ bool PhaseIITreeMaker::Execute(){
   fTrueDirX = truevtx->GetDirection().X();
   fTrueDirY = truevtx->GetDirection().Y();
   fTrueDirZ = truevtx->GetDirection().Z();
+
+  // Read PointPosition-fitted Vertex   
+  RecoVertex* pointposvtx = 0;
+  m_data->Stores.at("RecoEvent")->Get("PointPosition",pointposvtx); 
+  
+  fPointPosVtxX = pointposvtx->GetPosition().X();
+  fPointPosVtxY = pointposvtx->GetPosition().Y();
+  fPointPosVtxZ = pointposvtx->GetPosition().Z();
+  fPointPosVtxTime = pointposvtx->GetTime();
+  fPointPosVtxStatus = pointposvtx->GetStatus();
   
   // Read Seed Vertex   
   std::vector<RecoVertex>* seedvtxlist = 0;
@@ -122,6 +137,7 @@ bool PhaseIITreeMaker::Execute(){
     fSeedVtxY.push_back(seed.GetPosition().Y());
     fSeedVtxZ.push_back(seed.GetPosition().Z());
   }
+
   
   // Read digits
   std::vector<RecoDigit>* digitList = nullptr;
@@ -176,9 +192,15 @@ void PhaseIITreeMaker::ResetVariables() {
   fTrueDirX = 0;
   fTrueDirY = 0;
   fTrueDirZ = 0;
+  fPointPosVtxX = 0;
+  fPointPosVtxY = 0;
+  fPointPosVtxZ = 0;
+  fPointPosVtxTime = 0;
+  fPointPosVtxStatus = 0;
   fRecoVtxX = 0;
   fRecoVtxY = 0;
   fRecoVtxZ = 0;
+  fRecoStatus = 0;
   fRecoVtxTime = 0;
   fRecoDirX = 0;
   fRecoDirY = 0;
