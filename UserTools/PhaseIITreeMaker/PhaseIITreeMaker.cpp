@@ -117,25 +117,28 @@ bool PhaseIITreeMaker::Execute(){
 
   // Read PointPosition-fitted Vertex   
   RecoVertex* pointposvtx = 0;
-  m_data->Stores.at("RecoEvent")->Get("PointPosition",pointposvtx); 
-  
-  fPointPosVtxX = pointposvtx->GetPosition().X();
-  fPointPosVtxY = pointposvtx->GetPosition().Y();
-  fPointPosVtxZ = pointposvtx->GetPosition().Z();
-  fPointPosVtxTime = pointposvtx->GetTime();
-  fPointPosVtxStatus = pointposvtx->GetStatus();
-  
+  auto get_pointposdata = m_data->Stores.at("RecoEvent")->Get("PointPosition",pointposvtx);
+  if(get_pointposdata){ 
+    fPointPosVtxX = pointposvtx->GetPosition().X();
+    fPointPosVtxY = pointposvtx->GetPosition().Y();
+    fPointPosVtxZ = pointposvtx->GetPosition().Z();
+    fPointPosVtxTime = pointposvtx->GetTime();
+    fPointPosVtxStatus = pointposvtx->GetStatus();
+  } else{
+    Log("PhaseIITreeMaker Tool: No PointPosition data found.  Continuing to build remaining tree",v_message,verbosity);
+  }
+ 
   // Read Seed Vertex   
   std::vector<RecoVertex>* seedvtxlist = 0;
   auto get_seedvtxlist = m_data->Stores.at("RecoEvent")->Get("vSeedVtxList",seedvtxlist);  ///> Get List of seeds from "RecoEvent" 
-  if(!get_seedvtxlist){ 
-  	Log("PhaseIITreeMaker  Tool: Error retrieving Seed List! ",v_error,verbosity); 
-  	return true;
-  }
- for( auto& seed : *seedvtxlist ){
-    fSeedVtxX.push_back(seed.GetPosition().X());
-    fSeedVtxY.push_back(seed.GetPosition().Y());
-    fSeedVtxZ.push_back(seed.GetPosition().Z());
+  if(get_seedvtxlist){
+    for( auto& seed : *seedvtxlist ){
+      fSeedVtxX.push_back(seed.GetPosition().X());
+      fSeedVtxY.push_back(seed.GetPosition().Y());
+      fSeedVtxZ.push_back(seed.GetPosition().Z());
+    }
+  } else {  
+	Log("PhaseIITreeMaker  Tool: No Seed List found.  Continuing to build tree ",v_message,verbosity); 
   }
 
   
