@@ -87,7 +87,9 @@ bool EventSelector::Execute(){
 
 
 bool EventSelector::Finalise(){
-
+  delete fMuonStartVertex;
+  delete fMuonStopVertex;
+  if(verbosity>0) cout<<"EventSelector exitting"<<endl;
   return true;
 }
 
