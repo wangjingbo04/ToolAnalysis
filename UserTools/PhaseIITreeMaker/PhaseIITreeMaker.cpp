@@ -33,6 +33,9 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   fRecoTree->Branch("trueDirX",&fTrueDirX,"trueDirX/D");
   fRecoTree->Branch("trueDirY",&fTrueDirY,"trueDirY/D");
   fRecoTree->Branch("trueDirZ",&fTrueDirZ,"trueDirZ/D");
+  fRecoTree->Branch("seedVtxX",&fSeedVtxX); 
+  fRecoTree->Branch("seedVtxY",&fSeedVtxY); 
+  fRecoTree->Branch("seedVtxZ",&fSeedVtxZ); 
   fRecoTree->Branch("recoVtxX",&fRecoVtxX,"recoVtxX/D");
   fRecoTree->Branch("recoVtxY",&fRecoVtxY,"recoVtxY/D");
   fRecoTree->Branch("recoVtxZ",&fRecoVtxZ,"recoVtxZ/D");
@@ -87,6 +90,19 @@ bool PhaseIITreeMaker::Execute(){
   fTrueVtxY = truevtx->GetPosition().Y();
   fTrueVtxZ = truevtx->GetPosition().Z();
   fTrueVtxTime = truevtx->GetTime();
+
+  // Read Seed Vertex   
+  std::vector<RecoVertex>* seedvtxlist = 0;
+  auto get_seedvtxlist = m_data->Stores.at("RecoEvent")->Get("vSeedVtxList",seedvtxlist);  ///> Get List of seeds from "RecoEvent" 
+  if(!get_seedvtxlist){ 
+  	Log("PhaseIITreeMaker  Tool: Error retrieving Seed List! ",v_error,verbosity); 
+  	return true;
+  }
+ for( auto& seed : *seedvtxlist ){
+    fSeedVtxX.push_back(seed.GetPosition().X());
+    fSeedVtxY.push_back(seed.GetPosition().Y());
+    fSeedVtxZ.push_back(seed.GetPosition().Z());
+  }
   
   // Read digits
   std::vector<RecoDigit>* digitList = nullptr;

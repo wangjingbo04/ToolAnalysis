@@ -56,6 +56,11 @@ class PhaseIITreeMaker: public Tool {
   double fTrueTheta;
   double fTruePhi;
   double fTrueEnergy; 
+
+  // Seed vertex
+  std::vector<double> fSeedVtxX;
+  std::vector<double> fSeedVtxY;
+  std::vector<double> fSeedVtxZ;
   
   // Reco vertex
   // Vertex
