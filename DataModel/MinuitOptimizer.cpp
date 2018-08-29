@@ -1409,7 +1409,7 @@ void MinuitOptimizer::FitExtendedVertexWithMinuit() {
 //  fMinuitExtendedVertex->mnexcm("SET STR",arglist,1,err);
   fMinuitExtendedVertex->mnparm(0,"x",seedX,1.0,fXmin,fXmax,err);
   fMinuitExtendedVertex->mnparm(1,"y",seedY,1.0,fYmin,fYmax,err);
-  fMinuitExtendedVertex->mnparm(2,"z",seedZ,5.0,fZmin,fZmax,err);
+  fMinuitExtendedVertex->mnparm(2,"z",seedZ,1.0,fZmin,fZmax,err);
 //  fMinuitExtendedVertex->mnparm(0,"x",seedX,5.0,seedX-50,seedX+50,err);
 //  fMinuitExtendedVertex->mnparm(1,"y",seedY,5.0,seedY-50,seedY+50,err);
 //  fMinuitExtendedVertex->mnparm(2,"z",seedZ,5.0,seedZ-50,seedZ+50,err);
