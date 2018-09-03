@@ -61,3 +61,4 @@
 #include "LikelihoodFitterCheck/LikelihoodFitterCheck.cpp"
 #include "EventSelector/EventSelector.cpp"
 #include "SaveRecoEvent/SaveRecoEvent.cpp"
+#include "VtxExtendedVertexFinder/VtxExtendedVertexFinder.cpp"

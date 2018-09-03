@@ -5,5 +5,6 @@ EventSelector EventSelector ./configfiles/PhaseIIReco/EventSelectorConfig
 DigitBuilder DigitBuilder ./configfiles/PhaseIIReco/DigitBuilderConfig
 VtxSeedGenerator VtxSeedGenerator ./configfiles/PhaseIIReco/VtxSeedGeneratorConfig
 VtxPointPositionFinder VtxPointPositionFinder ./configfiles/PhaseIIReco/VtxPointPositionFinderConfig
+VtxExtendedVertexFinder VtxExtendedVertexFinder ./configfiles/PhaseIIReco/VtxExtendedVertexFinderConfig
 PhaseIITreeMaker PhaseIITreeMaker ./configfiles/PhaseIIReco/PhaseIITreeMakerConfig
 SaveRecoEvent SaveRecoEvent ./configfiles/PhaseIIReco/SaveRecoEventConfig
