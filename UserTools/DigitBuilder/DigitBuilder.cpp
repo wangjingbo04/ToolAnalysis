@@ -182,7 +182,8 @@ bool DigitBuilder::BuildPMTRecoDigit() {
 			  	//ahit.Print();
 					//if(v_message<verbosity) ahit.Print(); // << VERY verbose
 					// get calibrated PMT time (Use the MC time for now)
-					calT = ahit.GetTime()*1.0;
+					//calT = ahit.GetTime()*1.0;
+					calT = ahit.GetTime()*1.0 - 950.0; // remove 950 ns offs
 					calQ = ahit.GetCharge();
 					digitType = RecoDigit::PMT8inch;
 					RecoDigit recoDigit(region, pos_reco, calT, calQ, digitType);
@@ -228,7 +229,8 @@ bool DigitBuilder::BuildLAPPDRecoDigit() {
 					pos_reco.SetX(ahit.GetPosition().at(0)*100.); //cm
 					pos_reco.SetY(ahit.GetPosition().at(1)*100.+14.4649); //cm
 					pos_reco.SetZ(ahit.GetPosition().at(2)*100.-168.1); //cm
-					calT = ahit.GetTime() + ahit.GetTpsec()/1000 + 950.;  // Add 950 ns offset
+					//calT = ahit.GetTime() + ahit.GetTpsec()/1000 + 950.;  // Add 950 ns offset
+					calT = ahit.GetTime() + ahit.GetTpsec()/1000;  // 
 					calQ = ahit.GetCharge();
 					// I found the charge is 0 for all the hits. In order to test the code, 
 					// here I just set the charge to 1. We should come back to this later. (Jingbo Wang)

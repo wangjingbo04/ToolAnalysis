@@ -136,6 +136,17 @@ bool PhaseIITreeMaker::Execute(){
     fDigitType.push_back(digit.GetDigitType());
   }
   
+  // Read reconstructed Vertex
+  RecoVertex* recovtx = 0;
+  m_data->Stores.at("RecoEvent")->Get("ExtendedVertex",recovtx); 
+  fRecoVtxX = recovtx->GetPosition().X();
+  fRecoVtxY = recovtx->GetPosition().Y();
+  fRecoVtxZ = recovtx->GetPosition().Z();
+  fRecoVtxTime = recovtx->GetTime();
+  fRecoDirX = recovtx->GetDirection().X();
+  fRecoDirY = recovtx->GetDirection().Y();
+  fRecoDirZ = recovtx->GetDirection().Z();
+  
   fRecoTree->Fill();
   return true;
 }

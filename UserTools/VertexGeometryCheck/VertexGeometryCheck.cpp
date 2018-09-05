@@ -11,6 +11,7 @@ bool VertexGeometryCheck::Initialise(std::string configfile, DataModel &data){
   std::string output_filename;
   m_variables.Get("verbosity", verbosity);
   m_variables.Get("OutputFile", output_filename);
+  m_variables.Get("ShowEvent", fShowEvent);
   fOutput_tfile = new TFile(output_filename.c_str(), "recreate");
   
   // Histograms
@@ -26,8 +27,10 @@ bool VertexGeometryCheck::Initialise(std::string configfile, DataModel &data){
   fconeangle = new TH1D("coneangle","cone angle",90,0,90);
   fdigitcharge = new TH1D("digitcharge","digit charge", 150,0,150);
   flappdtimesmear = new TH1D("lappdtimesmear","lappdtimesmear", 100, 0, 0.1);
-  fpmttimesmear = new TH1D("pmttimesmear","pmttimesmear",100, 0, 1.0);
-
+  fpmttimesmear = new TH1D("pmttimesmear","pmttimesmear",100, 0, 1.0);   
+  fYvsDigitTheta_all = new TH2D("YvsDigitTheta_all", "Y vs DigitTheta", 400, -200, 200, 400, -200, 200);
+  fYvsDigitTheta_all->GetXaxis()->SetTitle("DigitTheta [deg]");                                             
+  fYvsDigitTheta_all->GetYaxis()->SetTitle("Digit Y [cm]");                                                 
   m_data= &data; //assigning transient data pointer
   /////////////////////////////////////////////////////////////////
 
@@ -57,7 +60,8 @@ bool VertexGeometryCheck::Execute(){
   // ANNIE Event number
   m_data->Stores.at("ANNIEEvent")->Get("EventNumber",fEventNumber);
   
-  if(fEventNumber!=6) return true; // Only check this event
+  // Only check this event
+  if(fShowEvent>0 && fEventNumber!=fShowEvent) return true; 
   
   // check if event passes the cut
   bool EventCutstatus = false;
@@ -89,6 +93,8 @@ bool VertexGeometryCheck::Execute(){
 	
 	double recoVtxX, recoVtxY, recoVtxZ, recoVtxT, recoDirX, recoDirY, recoDirZ;
   double trueVtxX, trueVtxY, trueVtxZ, trueVtxT, trueDirX, trueDirY, trueDirZ;
+  double digitX, digitY, digitZ, digitT;
+  double dx, dy, dz, px, py, pz, ds, cosphi, sinphi, phi, phideg;
   
   Position vtxPos = fTrueVertex->GetPosition();
 	Direction vtxDir = fTrueVertex->GetDirection();
@@ -110,8 +116,41 @@ bool VertexGeometryCheck::Execute(){
   double meantime = myOptimizer->FindSimpleTimeProperties(myvtxgeo);
   fmeanres->Fill(meantime);
   double fom = -999.999*100;
-  myOptimizer->TimePropertiesLnL(meantime,0.2,fom);
+  myOptimizer->TimePropertiesLnL(meantime,0.2,fom);  
   for(int n=0;n<nhits;n++) {
+    digitX = fDigitList->at(n).GetPosition().X();
+    digitY = fDigitList->at(n).GetPosition().Y();
+    digitZ = fDigitList->at(n).GetPosition().Z();
+    dx = digitX-trueVtxX;                    
+    dy = digitY-trueVtxY;                    
+    dz = digitZ-trueVtxZ;                    
+    ds = sqrt(dx*dx+dy*dy+dz*dz);      
+    px = dx/ds;                        
+    py = dy/ds;                        
+    pz = dz/ds;           
+    cosphi = 1.0;                      
+    sinphi = 1.0;                      
+    phi = 0.0;                         
+    phideg = 0.0;  
+    // zenith angle relative to muon track direction                                           
+    if( trueDirX*trueDirX + trueDirY*trueDirY + trueDirZ*trueDirZ>0.0 ){
+      // zenith angle
+      cosphi = px*trueDirX+py*trueDirY+pz*trueDirZ;
+      phi = acos(cosphi); // radians
+      phideg = phi/(TMath::Pi()/180.0); // radians->degrees
+    }
+  	// Y vs theta
+    double theta = 0.0;
+    double thetadeg = 0.0;  
+    if( digitZ!=0.0 ){
+      theta = atan(digitX/digitZ);
+    }
+    if( digitZ<=0.0 ){
+      if( digitX>0.0 ) theta += TMath::Pi();
+      if( digitX<0.0 ) theta -= TMath::Pi();
+    }
+    thetadeg = theta/(TMath::Pi()/180.0); // radians->degrees   
+    fYvsDigitTheta_all->Fill(thetadeg,digitY);  	
     fdelta->Fill(myvtxgeo->GetDelta(n));
     fpointtres->Fill(myvtxgeo->GetPointResidual(n));
     if(myvtxgeo->GetDigitType(n)==RecoDigit::lappd_v0) flappdextendedtres->Fill(myvtxgeo->GetExtendedResidual(n));

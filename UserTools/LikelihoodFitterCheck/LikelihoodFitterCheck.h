@@ -35,6 +35,9 @@ class LikelihoodFitterCheck: public Tool {
   /// \brief ANNIE event number
   uint32_t fEventNumber;
   
+  /// \brief Selecte a particular event to show
+  int fShowEvent = 0;
+  
  	std::vector<RecoDigit>* fDigitList = 0;
  	RecoVertex* fTrueVertex = 0;
  	
@@ -51,6 +54,8 @@ class LikelihoodFitterCheck: public Tool {
 	int v_debug=3;
 	std::string logmessage;
 	int get_ok;	
+	bool ifPlot2DFOM = false;
+	
 
 
 };
