@@ -38,6 +38,9 @@ class VertexGeometryCheck: public Tool {
  		
  	/// \brief true vertex pointer
  	RecoVertex* fTrueVertex = 0;
+ 	
+ 	/// \brief select a particle event to show
+ 	int fShowEvent = 0;
   
   /// \brief Histogram
   double recoVtxX, recoVtxY, recoVtxZ, recoVtxT, recoDirX, recoDirY, recoDirZ;
@@ -55,6 +58,7 @@ class VertexGeometryCheck: public Tool {
   TH1D *fdigitcharge;
   TH1D *flappdtimesmear; 
   TH1D *fpmttimesmear;
+  TH2D *fYvsDigitTheta_all;
 
 
 /// verbosity levels: if 'verbosity' < this level, the message type will be logged.

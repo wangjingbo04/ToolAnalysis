@@ -12,6 +12,8 @@ bool LikelihoodFitterCheck::Initialise(std::string configfile, DataModel &data){
   std::string output_filename;
   m_variables.Get("verbosity", verbosity);
   m_variables.Get("OutputFile", output_filename);
+  m_variables.Get("ifPlot2DFOM", ifPlot2DFOM);
+  m_variables.Get("ShowEvent", fShowEvent);
   fOutput_tfile = new TFile(output_filename.c_str(), "recreate");
   
   // Histograms
@@ -49,7 +51,8 @@ bool LikelihoodFitterCheck::Execute(){
   // ANNIE Event number
   m_data->Stores.at("ANNIEEvent")->Get("EventNumber",fEventNumber);
   
-  if(fEventNumber!=6) return true; // Only check this event
+  // Only check this event
+  if(fShowEvent>0 && fEventNumber!=fShowEvent) return true; 
   	
   logmessage = "Likelihood check for MC Entry Number " + to_string(fMCEventNum) 
                + " , MC Trigger Number" + to_string(fMCTriggerNum) 
@@ -159,36 +162,38 @@ bool LikelihoodFitterCheck::Execute(){
     gr_transverse->SetPoint(j, dlpara[j], dlfom[j]);
   }
   
-  //2D scan around the true vertex position
-    double dl_para = 1.0, dl_trans = 1.0;
-    double dx_para = dl_para * trueDirX;
-    double dy_para = dl_para * trueDirY;
-    double dz_para = dl_para * trueDirZ;
-    double dx_trans = dl_trans * v.X();
-    double dy_trans = dl_trans * v.Y();
-    double dz_trans = dl_trans * v.Z();
-    for(int k=0; k<100; k++) {
-      for(int m=0; m<200; m++) {
-      	seedX = trueVtxX - 50*dx_trans + k*dx_trans - 50*dx_para + m*dx_para;
-      	seedY = trueVtxY - 50*dy_trans + k*dy_trans - 50*dy_para + m*dy_para;
-      	seedZ = trueVtxZ - 50*dz_trans + k*dz_trans - 50*dz_para + m*dz_para;
-      	seedT = trueVtxT;
-      	seedDirX = trueDirX;
-      	seedDirY = trueDirY;
-      	seedDirZ = trueDirZ;
-      	myvtxgeo->CalcExtendedResiduals(seedX, seedY, seedZ, seedT, seedDirX, seedDirY, seedDirZ);
-      	int nhits = myOptimizer->fVtxGeo->GetNDigits();
-        double meantime = myOptimizer->FindSimpleTimeProperties(myvtxgeo);
-        Double_t fom = -999.999*100;
-        double timefom = -999.999*100;
-        double conefom = -999.999*100;
-        double coneAngle = 42.0;
-        myOptimizer->TimePropertiesLnL(meantime,0.2,timefom);
-        myOptimizer->FitConePropertiesFoM(coneAngle,conefom);
-        fom = timefom*0.5+conefom*0.5;
-        //fom = timefom;
-        cout<<"k,m, timeFOM, coneFOM, fom = "<<k<<", "<<m<<", "<<timefom<<", "<<conefom<<", "<<fom<<endl;
-        Likelihood2D->SetBinContent(m, k, fom);
+    if(ifPlot2DFOM) {
+      //2D scan around the true vertex position
+      double dl_para = 1.0, dl_trans = 1.0;
+      double dx_para = dl_para * trueDirX;
+      double dy_para = dl_para * trueDirY;
+      double dz_para = dl_para * trueDirZ;
+      double dx_trans = dl_trans * v.X();
+      double dy_trans = dl_trans * v.Y();
+      double dz_trans = dl_trans * v.Z();
+      for(int k=0; k<100; k++) {
+        for(int m=0; m<200; m++) {
+        	seedX = trueVtxX - 50*dx_trans + k*dx_trans - 50*dx_para + m*dx_para;
+        	seedY = trueVtxY - 50*dy_trans + k*dy_trans - 50*dy_para + m*dy_para;
+        	seedZ = trueVtxZ - 50*dz_trans + k*dz_trans - 50*dz_para + m*dz_para;
+        	seedT = trueVtxT;
+        	seedDirX = trueDirX;
+        	seedDirY = trueDirY;
+        	seedDirZ = trueDirZ;
+        	myvtxgeo->CalcExtendedResiduals(seedX, seedY, seedZ, seedT, seedDirX, seedDirY, seedDirZ);
+        	int nhits = myOptimizer->fVtxGeo->GetNDigits();
+          double meantime = myOptimizer->FindSimpleTimeProperties(myvtxgeo);
+          Double_t fom = -999.999*100;
+          double timefom = -999.999*100;
+          double conefom = -999.999*100;
+          double coneAngle = 42.0;
+          myOptimizer->TimePropertiesLnL(meantime,0.2,timefom);
+          myOptimizer->FitConePropertiesFoM(coneAngle,conefom);
+          fom = timefom*0.5+conefom*0.5;
+          //fom = timefom;
+          cout<<"k,m, timeFOM, coneFOM, fom = "<<k<<", "<<m<<", "<<timefom<<", "<<conefom<<", "<<fom<<endl;
+          Likelihood2D->SetBinContent(m, k, fom);
+        }
       }
     }
 

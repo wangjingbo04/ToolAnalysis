@@ -300,8 +300,8 @@ MinuitOptimizer::MinuitOptimizer() {
 	fYmax = 198.0;
 	fZmin = -152.0;
 	fZmax = 152.0;
-	fTmin = 946;
-	fTmax = 958;
+	fTmin = 0;
+	fTmax = 4;
 	
 	// default Mean time calculator type
 	fMeanTimeCalculatorType = 0;
@@ -1406,13 +1406,9 @@ void MinuitOptimizer::FitExtendedVertexWithMinuit() {
   fMinuitExtendedVertex->SetFCN(extended_vertex_chi2);
   fMinuitExtendedVertex->mnset();
   fMinuitExtendedVertex->mnexcm("SET STR",arglist,1,err);
-//  fMinuitExtendedVertex->mnexcm("SET STR",arglist,1,err);
   fMinuitExtendedVertex->mnparm(0,"x",seedX,1.0,fXmin,fXmax,err);
   fMinuitExtendedVertex->mnparm(1,"y",seedY,1.0,fYmin,fYmax,err);
   fMinuitExtendedVertex->mnparm(2,"z",seedZ,1.0,fZmin,fZmax,err);
-//  fMinuitExtendedVertex->mnparm(0,"x",seedX,5.0,seedX-50,seedX+50,err);
-//  fMinuitExtendedVertex->mnparm(1,"y",seedY,5.0,seedY-50,seedY+50,err);
-//  fMinuitExtendedVertex->mnparm(2,"z",seedZ,5.0,seedZ-50,seedZ+50,err);
   fMinuitExtendedVertex->mnparm(3,"theta",seedTheta,0.125*TMath::Pi(),-1.0*TMath::Pi(),2.0*TMath::Pi(),err); 
   fMinuitExtendedVertex->mnparm(4,"phi",seedPhi,0.125*TMath::Pi(),-2.0*TMath::Pi(), 2.0*TMath::Pi(),err);
   
@@ -1460,6 +1456,7 @@ void MinuitOptimizer::FitExtendedVertexWithMinuit() {
   fFittedVtx->SetDirection(fDirX,fDirY,fDirZ);
   fFittedVtx->SetConeAngle(fConeAngle);
   fFittedVtx->SetFOM(fVtxFOM,fItr,fPass);
+  
   // set status
   // ==========
   bool inside_det =  ANNIEGeometry::Instance()->InsideDetector(fVtxX,fVtxY,fVtxZ);
@@ -1471,7 +1468,6 @@ void MinuitOptimizer::FitExtendedVertexWithMinuit() {
   // return vertex
   // =============  
   return;
-  
 }
 
 void MinuitOptimizer::FitCorrectedVertexWithMinuit() {
