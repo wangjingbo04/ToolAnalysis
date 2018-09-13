@@ -22,11 +22,11 @@ bool VtxExtendedVertexFinder::Initialise(std::string configfile, DataModel &data
 	/// The last tool SaveRecoEvent will delete these pointers and free the memory.
 	/// If these pointers are not added to any store, the user has to delete the pointers
 	/// and free the memory. 
+	/// In this tool, the pointer is 
 	fExtendedVertex = new RecoVertex();
   
   return true;
 }
-
 
 bool VtxExtendedVertexFinder::Execute(){
 	Log("===========================================================================================",v_debug,verbosity);
@@ -70,27 +70,29 @@ bool VtxExtendedVertexFinder::Execute(){
 	if( fUseTrueVertexAsSeed ){
     Log("VtxExtendedVertexFinder Tool: Run vertex reconstruction using MC truth information",v_message,verbosity);
     // get truth vertex information 
-    get_ok = m_data->Stores.at("RecoEvent")->Get("TrueVertex", fTrueVertex);
-	  if(not get_ok){ 
+    auto get_truevtx = m_data->Stores.at("RecoEvent")->Get("TrueVertex", fTrueVertex);
+	  if(!get_truevtx){ 
 		  Log("VtxExtendedVertexFinder Tool: Error retrieving TrueVertex from RecoEvent!",v_error,verbosity); 
 		  return false; 
 	  }
-	  Position vtxPos = fTrueVertex->GetPosition();
-	  Direction vtxDir = fTrueVertex->GetDirection();
-	  double vtxTime = fTrueVertex->GetTime();
-	  // Set vertex seed
-    RecoVertex* vtx = new RecoVertex();
-    // Use true vertex information
-	  vtx->SetVertex(vtxPos, vtxTime);
-    vtx->SetDirection(vtxDir);
     // return vertex
-    fExtendedVertex  = (RecoVertex*)(this->FitExtendedVertex(vtx));
+    fExtendedVertex  = (RecoVertex*)(this->FitExtendedVertex(fTrueVertex));
     // Push fitted vertex to RecoEvent store
     this->PushExtendedVertex(fExtendedVertex, true);
-    delete vtx; vtx = 0;
   }
   else {
-    	
+    Log("VtxExtendedVertexFinder Tool: Run extended vertex reconstruction using point vertex",v_message,verbosity);
+    // get point vertex
+    RecoVertex* pointvertex = 0; 
+    auto get_pointvertex = m_data->Stores.at("RecoEvent")->Get("PointVertex", pointvertex);
+	  if(!get_pointvertex){ 
+		  Log("VtxPointVertexFinder Tool: Error retrieving PointVertex from RecoEvent!",v_error,verbosity); 
+		  return false; 
+	  }
+    // return vertex
+    fExtendedVertex  = (RecoVertex*)(this->FitExtendedVertex(pointvertex));
+    // Push fitted vertex to RecoEvent store
+    this->PushExtendedVertex(fExtendedVertex, true);    	
   }
   return true;
 }
@@ -104,28 +106,28 @@ bool VtxExtendedVertexFinder::Finalise(){
 }
 
 RecoVertex* VtxExtendedVertexFinder::FitExtendedVertex(RecoVertex* myVertex) {
-	Log("DEBUG [VtxExtendedVertexFinder::FitExtendedVertex]", v_message, verbosity);
   //fit with Minuit
   MinuitOptimizer* myOptimizer = new MinuitOptimizer();
-  myOptimizer->SetPrintLevel(1);
-  myOptimizer->SetMeanTimeCalculatorType(1); //
+  myOptimizer->SetPrintLevel(0);
+  myOptimizer->SetMeanTimeCalculatorType(1); //Type 1: most probable time
   VertexGeometry* myvtxgeo = VertexGeometry::Instance();
+  myvtxgeo->LoadDigits(fDigitList);
   myOptimizer->LoadVertexGeometry(myvtxgeo); //Load vertex geometry
   myOptimizer->LoadVertex(myVertex); //Load vertex seed
   myOptimizer->FitExtendedVertexWithMinuit(); //scan the point position in 4D space
   // Fitted vertex must be copied to a new vertex pointer that is created in this class 
   // Once the optimizer is deleted, the fitted vertex is lost. 
-  // copy vertex to fPointPosition
+  // copy vertex to fExtendedVertex
   RecoVertex* newVertex = new RecoVertex();
   newVertex->CloneVertex(myOptimizer->GetFittedVertex());
-  newVertex->SetFOM(myOptimizer->GetFittedVertex()->GetFOM(),1,1);
+  //newVertex->SetFOM(myOptimizer->GetFittedVertex()->GetFOM(),1,1);
   // print vertex
   // ============
   if(verbosity >0) {
   std::cout << "  set extended vertex: " << std::endl
   	        << "  status = "<<newVertex->GetStatus()<<std::endl
-            <<"     (vx,vy,vz)=(" << newVertex->GetPosition().X() << "," << newVertex->GetPosition().Y() << "," << newVertex->GetPosition().Z() << ") " << std::endl
-            << "      vtime=" << newVertex->GetTime() << " itr=" << newVertex->GetIterations() << " fom=" << newVertex->GetFOM() << std::endl;
+            << "     (vx,vy,vz)=(" << newVertex->GetPosition().X() << "," << newVertex->GetPosition().Y() << "," << newVertex->GetPosition().Z() << ") " << std::endl
+            << "     vtime=" << newVertex->GetTime() << " itr=" << newVertex->GetIterations() << " fom=" << newVertex->GetFOM() << std::endl;
   }
   delete myOptimizer; myOptimizer = 0;
   return newVertex;
@@ -135,7 +137,7 @@ RecoVertex* VtxExtendedVertexFinder::FitExtendedVertex(RecoVertex* myVertex) {
 void VtxExtendedVertexFinder::PushExtendedVertex(RecoVertex* vtx, bool savetodisk) {  
   // push vertex to RecoEvent store
   Log("VtxExtendedVertexFinder Tool: Push extended vertex to the RecoEvent store",v_message,verbosity);
-	m_data->Stores.at("RecoEvent")->Set("ExtendedVertex", fExtendedVertex, savetodisk);  ///> RecoEvent store is responsible to free the memory
+	m_data->Stores.at("RecoEvent")->Set("ExtendedVertex", fExtendedVertex, savetodisk);
 }
 
 void VtxExtendedVertexFinder::Reset() {

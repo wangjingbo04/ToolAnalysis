@@ -57,6 +57,8 @@ if (tool=="VertexGeometryCheck") ret=new VertexGeometryCheck;
 if (tool=="LikelihoodFitterCheck") ret=new LikelihoodFitterCheck;
 if (tool=="EventSelector") ret=new EventSelector;
 if (tool=="SaveRecoEvent") ret=new SaveRecoEvent;
-  if (tool=="VtxExtendedVertexFinder") ret=new VtxExtendedVertexFinder;
+if (tool=="VtxExtendedVertexFinder") ret=new VtxExtendedVertexFinder;
+if (tool=="VtxPointDirectionFinder") ret=new VtxPointDirectionFinder;
+  if (tool=="VtxPointVertexFinder") ret=new VtxPointVertexFinder;
 return ret;
 }

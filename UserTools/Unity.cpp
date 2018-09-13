@@ -62,3 +62,5 @@
 #include "EventSelector/EventSelector.cpp"
 #include "SaveRecoEvent/SaveRecoEvent.cpp"
 #include "VtxExtendedVertexFinder/VtxExtendedVertexFinder.cpp"
+#include "VtxPointDirectionFinder/VtxPointDirectionFinder.cpp"
+#include "VtxPointVertexFinder/VtxPointVertexFinder.cpp"

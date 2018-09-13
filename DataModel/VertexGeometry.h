@@ -33,9 +33,6 @@ class VertexGeometry {
 
   RecoVertex* CalcSimpleVertex(std::vector<RecoDigit>* vDigitList);
 
-  RecoVertex* CalcSimpleDirection(std::vector<RecoDigit>* vDigitList, RecoVertex* vtx);
-  RecoVertex* CalcSimpleDirection(RecoVertex* vtx);
-
   int GetNDigits() { return fNDigits; }
   int GetNFilterDigits() { return fNFilterDigits; }
 

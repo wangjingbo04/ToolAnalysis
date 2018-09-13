@@ -50,7 +50,7 @@ bool VtxSeedGenerator::Execute(){
   
 	auto get_recoevent = m_data->Stores.count("RecoEvent");
 	if(!get_recoevent){
-		Log("VtxSeedGenerator Tool: No RecoVertex store!",v_error,verbosity);
+		Log("VtxSeedGenerator Tool: RecoEvent store doesn't exist!",v_error,verbosity);
 		return false;
 	};
 	

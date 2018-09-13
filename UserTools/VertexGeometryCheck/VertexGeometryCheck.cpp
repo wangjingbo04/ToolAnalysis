@@ -15,11 +15,11 @@ bool VertexGeometryCheck::Initialise(std::string configfile, DataModel &data){
   fOutput_tfile = new TFile(output_filename.c_str(), "recreate");
   
   // Histograms
-  flappdextendedtres = new TH1D("lappdextendedtres","lappd Extended time residual",1000, 940, 980); 
-  fpmtextendedtres = new TH1D("pmtextendedtres","pmt Extended time residual",1000, 900, 1000); 
-  fpointtres = new TH1D("pointres","Point time residual",1000,900,1000);
-  fdelta = new TH1D("delta", "delta", 1000, 900, 1000); 
-  fmeanres = new TH1D("meanres","Mean time residual",1000, 900, 1000);
+  flappdextendedtres = new TH1D("lappdextendedtres","lappd Extended time residual",1000, -10, 30); 
+  fpmtextendedtres = new TH1D("pmtextendedtres","pmt Extended time residual",1000, -10, 30); 
+  fpointtres = new TH1D("pointres","Point time residual",1000,-10,30);
+  fdelta = new TH1D("delta", "delta", 1000, -10, 30); 
+  fmeanres = new TH1D("meanres","Mean time residual",1000, -10, 30);
   fltrack = new TH1D("ltrack","track path length",1000,0,1000);
   flphoton = new TH1D("lphoton","photon path length",1000,0,1000);
   fzenith = new TH1D("zenith","zenith angle",180,0,180);

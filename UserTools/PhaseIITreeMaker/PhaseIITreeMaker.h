@@ -25,6 +25,9 @@ class PhaseIITreeMaker: public Tool {
  	/// \brief Reset all variables. 
  	void ResetVariables();
  	
+ 	/// \brief Summary of Reconstructed vertex
+ 	void RecoSummary();
+ 	
  	/// \brief ROOT TFile that will be used to store the output from this tool
   TFile* fOutput_tfile = nullptr;
 
