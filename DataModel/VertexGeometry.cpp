@@ -368,9 +368,6 @@ void VertexGeometry::CalcSimpleVertex(double& vtxX, double& vtxY, double& vtxZ, 
 
   for( int idigit=0; idigit<fNDigits; idigit++ ){
     if( fIsFiltered[idigit] ){
-//      std::cout << "Swx: " << Swx << ", Swy: " << Swy << ", Swz: " << Swz
-//        << ", Swt: " << Swt << ", Sw: " << Sw << std::endl;
-
       Swx += fDigitQ[idigit]*fDigitX[idigit];
       Swy += fDigitQ[idigit]*fDigitY[idigit];
       Swz += fDigitQ[idigit]*fDigitZ[idigit];
@@ -391,107 +388,6 @@ void VertexGeometry::CalcSimpleVertex(double& vtxX, double& vtxY, double& vtxZ, 
   }   
 
   return;
-}
-  
-RecoVertex* VertexGeometry::CalcSimpleDirection(std::vector<RecoDigit>* vDigitList, RecoVertex* myVertex)
-{
-  // load event
-  // ==========
-  this->LoadDigits(vDigitList);
-
-  // calculate simple direction
-  // ==========================
-  return this->CalcSimpleDirection(myVertex);
-}
-
-RecoVertex* VertexGeometry::CalcSimpleDirection(RecoVertex* myVertex)
-{
-  // load vertex
-  // ===========
-  double vtxX = myVertex->GetPosition().X();
-  double vtxY = myVertex->GetPosition().Y();
-  double vtxZ = myVertex->GetPosition().Z();
-  double vtxTime = myVertex->GetTime();
-    
-  // current status
-  // ==============
-  int status = myVertex->GetStatus();
-
-  // create new vertex
-  // =================
-  RecoVertex* newVertex = new RecoVertex();
-  vVertexList.push_back(newVertex);
-
-  // loop over digits
-  // ================
-  double Swx = 0.0;
-  double Swy = 0.0;
-  double Swz = 0.0;
-  double Sw = 0.0;
-
-  for( int idigit=0; idigit<fNDigits; idigit++ ){
-    if( fIsFiltered[idigit] ){
-      double q = fDigitQ[idigit];
-
-      double dx = fDigitX[idigit] - vtxX;
-      double dy = fDigitY[idigit] - vtxY;
-      double dz = fDigitZ[idigit] - vtxZ;
-      double ds = sqrt(dx*dx+dy*dy+dz*dz);
-
-      double px = dx/ds;
-      double py = dy/ds;
-      double pz = dz/ds;
-
-      Swx += q*px;
-      Swy += q*py;
-      Swz += q*pz;
-      Sw  += q;
-    }
-  }
-
-  // average direction
-  // =================
-  double dirX = 0.0;
-  double dirY = 0.0;
-  double dirZ = 0.0;
-  
-  int itr = 0;
-  bool pass = 0; 
-  double fom = 0.0;
-
-  if( Sw>0.0 ){
-    double qx = Swx/Sw;
-    double qy = Swy/Sw;
-    double qz = Swz/Sw;
-    double qs = sqrt(qx*qx+qy*qy+qz*qz);
-
-    dirX = qx/qs;
-    dirY = qy/qs;
-    dirZ = qz/qs;
-
-    fom = 1.0;
-    itr = 1;
-    pass = 1; 
-  }
-
-  // set vertex and direction
-  // ========================
-  if( pass ){
-    newVertex->SetVertex(vtxX,vtxY,vtxZ,vtxTime);
-    newVertex->SetDirection(dirX,dirY,dirZ);
-    newVertex->SetFOM(fom,itr,pass);
-  }
-
-  //std::cout << "[CalcSimpleDirection] (vtxX,vtxY,vtxZ,vtxTime) = (" << vtxX <<","<<vtxY<<","<<vtxZ<<","<<vtxTime<<" , (dirX,dirY,dirZ,fom,itr) = (" << dirX <<","<<dirY<<","<<dirZ<<","<<fom<<","<<itr<<std::endl;
-
-  // set status
-  // ==========
-  if( !pass ) status |= RecoVertex::kFailSimpleDirection;
-  newVertex->SetStatus(status);
-
-  // return vertex
-  // =============
-  return newVertex;
 }
 
 void VertexGeometry::CalcResiduals(std::vector<RecoDigit>* vDigitList, RecoVertex* myVertex)

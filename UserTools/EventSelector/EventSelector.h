@@ -60,6 +60,15 @@ class EventSelector: public Tool {
  	/// Push true neutrino vertex to "RecoVertex"
  	/// \param[in] bool savetodisk: save object to disk if savetodisk=true
  	void PushTrueVertex(bool savetodisk);
+ 	
+ 	/// \brief MC entry number
+  uint64_t fMCEventNum;
+  
+  /// \brief trigger number
+  uint16_t fMCTriggerNum;
+  
+  /// \brief ANNIE event number
+  uint32_t fEventNumber;
 
 	Geometry fGeometry;    ///< ANNIE Geometry
 	RecoVertex* fMuonStartVertex = nullptr; 	 ///< true muon start vertex
@@ -70,7 +79,6 @@ class EventSelector: public Tool {
 	int verbosity=1;
 
 	std::string fInputfile;
-	unsigned long fNumEvents;
 	bool fMRDRecoCut = false;
 	bool fMCTruthCut = false;
 	bool fEventCutStatus;

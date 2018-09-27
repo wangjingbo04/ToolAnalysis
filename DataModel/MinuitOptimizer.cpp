@@ -300,8 +300,8 @@ MinuitOptimizer::MinuitOptimizer() {
 	fYmax = 198.0;
 	fZmin = -152.0;
 	fZmax = 152.0;
-	fTmin = 0;
-	fTmax = 4;
+	fTmin = -10.0;
+	fTmax = 20.0;
 	
 	// default Mean time calculator type
 	fMeanTimeCalculatorType = 0;
@@ -1408,7 +1408,7 @@ void MinuitOptimizer::FitExtendedVertexWithMinuit() {
   fMinuitExtendedVertex->mnexcm("SET STR",arglist,1,err);
   fMinuitExtendedVertex->mnparm(0,"x",seedX,1.0,fXmin,fXmax,err);
   fMinuitExtendedVertex->mnparm(1,"y",seedY,1.0,fYmin,fYmax,err);
-  fMinuitExtendedVertex->mnparm(2,"z",seedZ,1.0,fZmin,fZmax,err);
+  fMinuitExtendedVertex->mnparm(2,"z",seedZ,5.0,fZmin,fZmax,err);
   fMinuitExtendedVertex->mnparm(3,"theta",seedTheta,0.125*TMath::Pi(),-1.0*TMath::Pi(),2.0*TMath::Pi(),err); 
   fMinuitExtendedVertex->mnparm(4,"phi",seedPhi,0.125*TMath::Pi(),-2.0*TMath::Pi(), 2.0*TMath::Pi(),err);
   

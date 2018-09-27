@@ -42,7 +42,7 @@ bool DigitBuilder::Initialise(std::string configfile, DataModel &data){
 bool DigitBuilder::Execute(){
 	Log("===========================================================================================",v_debug,verbosity);
 	
-	// Reset everything
+	/// Reset everything
 	this->Reset();
 	
 	// see if "ANNIEEvent" exists
@@ -51,12 +51,14 @@ bool DigitBuilder::Execute(){
 		Log("DigitBuilder Tool: No ANNIEEvent store!",v_error,verbosity); 
 		return false;
 	};
-	// see if "RecoEvent" exists
+	
+	/// see if "RecoEvent" exists
  	auto get_recoevent = m_data->Stores.count("RecoEvent");
  	if(!get_recoevent){
   		Log("EventSelector Tool: No RecoEvent store!",v_error,verbosity); 
   		return false;
 	};
+	
 	/// First, see if this is a delayed trigger in the event
 	auto get_mctrigger = m_data->Stores.at("ANNIEEvent")->Get("MCTriggernum",fMCTriggernum);
 	if(!get_mctrigger){ 
@@ -70,7 +72,20 @@ bool DigitBuilder::Execute(){
 		return true;
 	}
 	
-	/// Retrieve the hit info from ANNIEEvent
+	/// check if EventCutStatus exists
+  auto get_evtcutstatus = m_data->Stores.at("RecoEvent")->Get("EventCutStatus",fEventCutStatus);
+	if(!get_evtcutstatus){
+		Log("DigitBuilder Tool: Error retrieving EventCutStatus from RecoEvent! Need to run EventSelector first!", v_error,verbosity);
+		return false;
+
+	  /// Check if event passed all cuts checked with EventSelector
+	  if(!fEventCutStatus){
+	     Log("DigitBuilder Tool: Event doesn't pass all event cuts from EventSelector",v_message,verbosity);
+	     return true;
+	  }
+  } 
+  
+  /// Retrieve the hit info from ANNIEEvent
 	auto get_geometry= m_data->Stores.at("ANNIEEvent")->Header->Get("AnnieGeometry",fGeometry);
 	if(!get_geometry){
 		Log("DigitBuilder Tool: Error retrieving Geometry from ANNIEEvent!",v_error,verbosity); 
@@ -86,21 +101,8 @@ bool DigitBuilder::Execute(){
 		Log("DigitBuilder Tool: Error retrieving MCLAPPDHits from ANNIEEvent!",v_error,verbosity); 
 		return false;
 	}
-	
-        auto get_evtcutstatus = m_data->Stores.at("RecoEvent")->Get("EventCutStatus",fEventCutStatus);
-	if(!get_evtcutstatus){
-		Log("DigitBuilder Tool: Error retrieving EventCutStatus from RecoEvent!", v_error,verbosity);
-		return false;
-
-	// Check if event passed all cuts checked with EventSelector
-	if(!fEventCutStatus){
-              std::cout << "Message: Event does not pass all event cuts from EventSelector" << std::endl;
-	      Log("DigitBuilder Tool: Event doesn't pass all event cuts from EventSelector",v_message,verbosity);
-	      return true;
-	  }
-  } 
 	 
-	// Build RecoDigit
+	/// Build RecoDigit
 	this->BuildRecoDigit();
 	
 	if(fDigitList->size()<4) {
@@ -108,7 +110,7 @@ bool DigitBuilder::Execute(){
 		return true;
 	}
 	
-	// Push recodigits to RecoEvent
+	/// Push recodigits to RecoEvent
 	this->PushRecoDigits(true); 
 	
   return true;
@@ -145,17 +147,17 @@ bool DigitBuilder::BuildRecoDigit() {
 bool DigitBuilder::BuildPMTRecoDigit() {
 	
 	Log("DigitBuilder Tool: Build PMT reconstructed digits",v_message,verbosity);
-	// now move to digit retrieval
+	/// now move to digit retrieval
 	int region = -999;
 	double calT;
 	double calQ = 0.;
 	int digitType = -999;
 	Detector det;
 	Position  pos_sim, pos_reco;
-	// MCHits is a std::map<ChannelKey,std::vector<Hit>>
+	/// MCHits is a std::map<ChannelKey,std::vector<Hit>>
 	if(fMCHits){
 		Log("DigitBuilder Tool: Num PMT Digits = "+to_string(fMCHits->size()),v_message, verbosity);
-		// iterate over the map of sensors with a measurement
+		/// iterate over the map of sensors with a measurement
 		for(std::pair<ChannelKey,std::vector<Hit>>&& apair : *fMCHits){
 			ChannelKey chankey = apair.first;
 			// a ChannelKey is a detector descriptor, containing 2 elements:
@@ -231,6 +233,7 @@ bool DigitBuilder::BuildLAPPDRecoDigit() {
 					pos_reco.SetZ(ahit.GetPosition().at(2)*100.-168.1); //cm
 					//calT = ahit.GetTime() + ahit.GetTpsec()/1000 + 950.;  // Add 950 ns offset
 					calT = ahit.GetTime() + ahit.GetTpsec()/1000;  // 
+					calT = frand.Gaus(calT, 0.1); // time is smeared with 100 ps time resolution. Harded-coded for now.
 					calQ = ahit.GetCharge();
 					// I found the charge is 0 for all the hits. In order to test the code, 
 					// here I just set the charge to 1. We should come back to this later. (Jingbo Wang)

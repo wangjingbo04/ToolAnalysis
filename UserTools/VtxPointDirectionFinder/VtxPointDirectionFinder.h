@@ -1,17 +1,17 @@
-#ifndef VtxExtendedVertexFinder_H
-#define VtxExtendedVertexFinder_H
+#ifndef VtxPointDirectionFinder_H
+#define VtxPointDirectionFinder_H
 
 #include <string>
 #include <iostream>
 
 #include "Tool.h"
 
-class VtxExtendedVertexFinder: public Tool {
+class VtxPointDirectionFinder: public Tool {
 
 
  public:
 
-  VtxExtendedVertexFinder();
+  VtxPointDirectionFinder();
   bool Initialise(std::string configfile,DataModel &data);
   bool Execute();
   bool Finalise();
@@ -26,22 +26,30 @@ class VtxExtendedVertexFinder: public Tool {
   
   /// \brief ANNIE event number
   uint32_t fEventNumber;
+  
+  /// \brief
+  RecoVertex* FindSimpleDirection(RecoVertex* myvertex);
  	
  	/// \brief 
- 	RecoVertex* FitExtendedVertex(RecoVertex* myvertex);
+ 	RecoVertex* FitPointDirection(RecoVertex* myvertex);
  	
  	/// \brief Reset everything
  	void Reset();
  	
- 	/// \brief Push fitted extended vertex to store
- 	void PushExtendedVertex(RecoVertex* vtx, bool savetodisk);
+ 	/// \brief Push found simple direction to store
+ 	void PushSimpleDirection(RecoVertex* vtx, bool savetodisk);
+ 	
+ 	/// \brief Push fitted point direction to store
+ 	void PushPointDirection(RecoVertex* vtx, bool savetodisk);
  	
  	bool fUseTrueVertexAsSeed;
  	RecoVertex* fTrueVertex = 0;
  	std::vector<RecoDigit>* fDigitList = 0;
  	
- 	/// \brief extended vertex
- 	RecoVertex* fExtendedVertex = 0;
+ 	/// \brief simple direction
+ 	RecoVertex* fSimpleDirection = 0;
+ 	/// \brief point direction
+ 	RecoVertex* fPointDirection = 0;
  	
  	/// verbosity levels: if 'verbosity' < this level, the message type will be logged.
   int verbosity=-1;
@@ -49,10 +57,6 @@ class VtxExtendedVertexFinder: public Tool {
 	int v_warning=1;
 	int v_message=2;
 	int v_debug=3;
-	std::string logmessage;
-	int get_ok;	
-
-
 
 
 };

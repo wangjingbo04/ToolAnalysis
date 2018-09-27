@@ -47,6 +47,25 @@ bool EventSelector::Execute(){
   	Log("EventSelector Tool: No RecoEvent store!",v_error,verbosity); 
   	return false;
   };
+  
+  // MC entry number
+  m_data->Stores.at("ANNIEEvent")->Get("MCEventNum",fMCEventNum);  
+  
+  // MC trigger number
+  m_data->Stores.at("ANNIEEvent")->Get("MCTriggernum",fMCTriggerNum); 
+  
+  // ANNIE Event number
+  m_data->Stores.at("ANNIEEvent")->Get("EventNumber",fEventNumber);
+  
+  std::string logmessage = "EventSelector Tool: Processing MCEntry "+to_string(fMCEventNum)+
+  	", MCTrigger "+to_string(fMCTriggerNum) + ", Event "+to_string(fEventNumber);
+	Log(logmessage,v_message,verbosity);
+  
+  auto get_geometry= m_data->Stores.at("ANNIEEvent")->Header->Get("AnnieGeometry",fGeometry);
+	if(!get_geometry){
+		Log("EventSelector Tool: Error retrieving Geometry from ANNIEEvent!",v_error,verbosity); 
+		return false; 
+	}
 
 	// Retrieve particle information from ANNIEEvent
   auto get_mcparticles = m_data->Stores.at("ANNIEEvent")->Get("MCParticles",fMCParticles);
@@ -55,13 +74,6 @@ bool EventSelector::Execute(){
 		return false; 
 	}
 	
-	/// check if "MRDTracks" store exists
-	int mrdtrackexists = m_data->Stores.count("MRDTracks");
-	if(mrdtrackexists == 0) {
-	  Log("EventSelector Tool: MRDTracks store doesn't exist!",v_message,verbosity);
-	  return false;
-	} 	
-	
   /// Find true neutrino vertex which is defined by the start point of the Primary muon
   this->FindTrueVertexFromMC();
   
@@ -69,6 +81,7 @@ bool EventSelector::Execute(){
     bool passMCTruth= this->EventSelectionByMCTruthInfo();
     if(!passMCTruth) fEventCutStatus = false; 
   }
+  
   //FIXME: This isn't working according to Jingbo
   if(fMRDRecoCut){
     std::cout << "EventSelector Tool: Currently not implemented. Setting to false" << std::endl;
@@ -121,7 +134,7 @@ RecoVertex* EventSelector::FindTrueVertexFromMC() {
   
   // retrieve desired information from the particle
   Position muonstartpos = primarymuon.GetStartVertex();    // only true if the muon is primary
-  double muonstarttime = primarymuon.GetStartTime().GetNs() + primarymuon.GetStopTime().GetTpsec()/1000;
+  double muonstarttime = primarymuon.GetStartTime().GetNs() + primarymuon.GetStopTime().GetTpsec()/1000 ;
   Position muonstoppos = primarymuon.GetStopVertex();    // only true if the muon is primary
   double muonstoptime = primarymuon.GetStopTime().GetNs() + primarymuon.GetStopTime().GetTpsec()/1000;
   
@@ -141,9 +154,12 @@ RecoVertex* EventSelector::FindTrueVertexFromMC() {
   muonstoppos.SetZ(muonstoppos.Z()-168.1);
   fMuonStopVertex->SetVertex(muonstoppos, muonstoptime); 
   
-  logmessage = "  trueVtx=(" +to_string(muonstartpos.X()) + ", " + to_string(muonstartpos.Y()) + ", " + to_string(muonstartpos.Z()) +", "+to_string(muonstarttime)+ "\n"
+  logmessage = "  trueVtx = (" +to_string(muonstartpos.X()) + ", " + to_string(muonstartpos.Y()) + ", " + to_string(muonstartpos.Z()) +", "+to_string(muonstarttime)+ "\n"
             + "           " +to_string(muondirection.X()) + ", " + to_string(muondirection.Y()) + ", " + to_string(muondirection.Z()) + ") " + "\n";
+  
   Log(logmessage,v_debug,verbosity);
+	logmessage = "  muonStop = ("+to_string(muonstoppos.X()) + ", " + to_string(muonstoppos.Y()) + ", " + to_string(muonstoppos.Z()) + ") "+ "\n";
+	Log(logmessage,v_debug,verbosity);
   return fMuonStartVertex;
 }
 
@@ -151,7 +167,6 @@ void EventSelector::PushTrueVertex(bool savetodisk) {
   Log("EventSelector Tool: Push true vertex to the RecoEvent store",v_message,verbosity);
   m_data->Stores.at("RecoEvent")->Set("TrueVertex", fMuonStartVertex, savetodisk); 
 }
-
 
 // This function isn't working now, because the MRDTracks store must have been changed. 
 // We have to contact Marcus and ask how we can retieve the MRD track information. 
@@ -163,6 +178,13 @@ bool EventSelector::EventSelectionByMRDReco() {
   int mrdlayershit = 0;
   bool mrdtrackisstoped = false;
   int longesttrackEntryNumber = -9999;
+  
+  /// check if "MRDTracks" store exists
+	int mrdtrackexists = m_data->Stores.count("MRDTracks");
+	if(mrdtrackexists == 0) {
+	  Log("EventSelector Tool: MRDTracks store doesn't exist!",v_message,verbosity);
+	  return false;
+	} 	
   
   auto getmrdtracks = m_data->Stores.at("MRDTracks")->Get("NumMrdTracks",NumMrdTracks);
   if(!getmrdtracks) {
@@ -199,14 +221,12 @@ bool EventSelector::EventSelectionByMRDReco() {
 
 bool EventSelector::EventSelectionByMCTruthInfo() {
   if(!fMuonStartVertex) return false;
-  
   double trueVtxX, trueVtxY, trueVtxZ;
   Position vtxPos = fMuonStartVertex->GetPosition();
   Direction vtxDir = fMuonStartVertex->GetDirection();
   trueVtxX = vtxPos.X();
   trueVtxY = vtxPos.Y();
   trueVtxZ = vtxPos.Z();
-  
   // fiducial volume cut
   double tankradius = ANNIEGeometry::Instance()->GetCylRadius();	
   double fidcutradius = 0.8 * tankradius;
@@ -217,27 +237,27 @@ bool EventSelector::EventSelectionByMCTruthInfo() {
   	  || (TMath::Abs(trueVtxY) > fidcuty) 
   	  || (trueVtxZ > fidcutz) ){
   return false;
-  }	 	
-  
-//	// mrd cut
-//	double muonStopX, muonStopY, muonStopZ;
-//	Position muonStopPos = fMuonStopVertex->GetPosition();
-//	muonStopX = muonStopPos.X();
-//	muonStopY = muonStopPos.Y();
-//	muonStopZ = muonStopPos.Z();
-//	
-//	// The following dimensions are inaccurate. We need to get these numbers from the geometry class
-//	double distanceBetweenTankAndMRD = 10.; // about 10 cm
-//	double mrdThicknessZ = 60.0;
-//	double mrdWidthX = 305.0;
-//	double mrdHeightY = 274.0;
-//	if(muonStopZ<tankradius + distanceBetweenTankAndMRD || muonStopZ>tankradius + distanceBetweenTankAndMRD + mrdThicknessZ
-//		|| muonStopX<-1.0*mrdWidthX/2 || muonStopX>mrdWidthX/2
-//		|| muonStopY<-1.0*mrdHeightY/2 || muonStopY>mrdHeightY/2) {
-//	  return false;	
-//	}
-	
-  return true;	
+  }	 
+  /*	
+	// mrd cut
+	double muonStopX, muonStopY, muonStopZ;
+	muonStopX = fMuonStopVertex->GetPosition().X();
+	muonStopY = fMuonStopVertex->GetPosition().Y();
+	muonStopZ = fMuonStopVertex->GetPosition().Z();
+	double mrdStartZ = fGeometry.GetMrdStart()*100-168.1;
+	double mrdEndZ = fGeometry.GetMrdEnd()*100-168.1;
+	double mrdHeightY = fGeometry.GetMrdHeight()*100;                                                                                     
+	double mrdWidthX = fGeometry.GetMrdWidth()*100;
+	cout<<"muonStopX, Y, Z = "<<muonStopX<<", "<<muonStopY<<", "<<muonStopZ<<endl;
+	cout<<"mrdStartZ, mrdStopZ = "<<mrdStartZ<<", "<<mrdEndZ<<endl;
+	cout<<"mrdWidthX = "<<mrdWidthX<<endl;
+	cout<<"mrdHeightY = "<<mrdHeightY<<endl;
+	if(muonStopZ<mrdStartZ || muonStopZ>mrdEndZ
+		|| muonStopX<-1.0*mrdWidthX || muonStopX>mrdWidthX
+		|| muonStopY<-1.0*mrdHeightY || muonStopY>mrdHeightY) {
+	  return false;	
+	}*/
+  return true;
 }
 
 void EventSelector::Reset() {

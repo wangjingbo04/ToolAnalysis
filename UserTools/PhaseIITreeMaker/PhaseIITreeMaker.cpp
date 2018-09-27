@@ -52,6 +52,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   fRecoTree->Branch("recoDirZ",&fRecoDirZ,"recoDirZ/D");
   fRecoTree->Branch("recoStatus",&fRecoStatus,"recoStatus/I");
   
+
   //histograms
   hDeltaX          = new TH1D("DeltaX", "x difference", 200, -200, 200);  
   hDeltaY          = new TH1D("DeltaY", "y difference", 200, -200, 200);
@@ -103,6 +104,11 @@ bool PhaseIITreeMaker::Execute(){
   // ANNIE Event number
   m_data->Stores.at("ANNIEEvent")->Get("EventNumber",fEventNumber);
   
+  std::string logmessage = "  Retriving information for MCEntry "+to_string(fMCEventNum)+
+  	", MCTrigger "+ to_string(fMCTriggerNum) + ", EventNumber " + to_string(fEventNumber);
+  Log(logmessage, v_message, verbosity);
+  
+  
   // Read True Vertex   
   RecoVertex* truevtx = 0;
   m_data->Stores.at("RecoEvent")->Get("TrueVertex",truevtx); 
@@ -114,7 +120,6 @@ bool PhaseIITreeMaker::Execute(){
   fTrueDirX = truevtx->GetDirection().X();
   fTrueDirY = truevtx->GetDirection().Y();
   fTrueDirZ = truevtx->GetDirection().Z();
-
   // Read PointPosition-fitted Vertex   
   RecoVertex* pointposvtx = 0;
   auto get_pointposdata = m_data->Stores.at("RecoEvent")->Get("PointPosition",pointposvtx);
@@ -128,7 +133,7 @@ bool PhaseIITreeMaker::Execute(){
     Log("PhaseIITreeMaker Tool: No PointPosition data found.  Continuing to build remaining tree",v_message,verbosity);
   }
  
-  // Read Seed Vertex   
+  // Read Seed candidates   
   std::vector<RecoVertex>* seedvtxlist = 0;
   auto get_seedvtxlist = m_data->Stores.at("RecoEvent")->Get("vSeedVtxList",seedvtxlist);  ///> Get List of seeds from "RecoEvent" 
   if(get_seedvtxlist){
@@ -157,7 +162,11 @@ bool PhaseIITreeMaker::Execute(){
   
   // Read reconstructed Vertex
   RecoVertex* recovtx = 0;
-  m_data->Stores.at("RecoEvent")->Get("ExtendedVertex",recovtx); 
+  auto get_extendedvtx = m_data->Stores.at("RecoEvent")->Get("ExtendedVertex",recovtx); 
+  if(!get_extendedvtx) {
+    Log("Error: The PhaseITreeMaker tool could not find ExtendedVertex", v_error, verbosity);
+    return false;	
+  }
   fRecoVtxX = recovtx->GetPosition().X();
   fRecoVtxY = recovtx->GetPosition().Y();
   fRecoVtxZ = recovtx->GetPosition().Z();
@@ -165,8 +174,8 @@ bool PhaseIITreeMaker::Execute(){
   fRecoDirX = recovtx->GetDirection().X();
   fRecoDirY = recovtx->GetDirection().Y();
   fRecoDirZ = recovtx->GetDirection().Z();
-  
   fRecoTree->Fill();
+  this->RecoSummary();
   return true;
 }
 
@@ -226,5 +235,24 @@ void PhaseIITreeMaker::ResetVariables() {
   fDigitT.clear();
   fDigitQ.clear();
   fDigitType.clear();	
+}
+
+void PhaseIITreeMaker::RecoSummary() {
+
+  // get reconstruction output
+  double dx = fRecoVtxX - fTrueVtxX;
+  double dy = fRecoVtxY - fTrueVtxY;
+  double dz = fRecoVtxZ - fTrueVtxZ;
+  double dt = fRecoVtxTime - fTrueVtxTime;
+  double deltaR = sqrt(dx*dx + dy*dy + dz*dz);
+  double cosphi = 0., phi = 0., DeltaAngle = 0.;
+  cosphi = fTrueDirX*fRecoDirX+fTrueDirY*fRecoDirY+fTrueDirZ*fRecoDirZ;
+  phi = TMath::ACos(cosphi); // radians
+  DeltaAngle = phi/(TMath::Pi()/180.0); // radians->degrees
+  std::cout << "  trueVtx=(" << fTrueVtxX << ", " << fTrueVtxY << ", " << fTrueVtxZ <<", "<< fTrueVtxTime<< std::endl
+            << "           " << fTrueDirX << ", " << fTrueDirY << ", " << fTrueDirZ << ") " << std::endl;
+  std::cout << "  recoVtx=(" << fRecoVtxX << ", " << fRecoVtxY << ", " << fRecoVtxZ <<", "<< fRecoVtxTime << std::endl
+            << "           " << fRecoDirX << ", " << fRecoDirY << ", " << fRecoDirZ << ") " << std::endl;
+  std::cout << "  DeltaR = "<<deltaR<<"[cm]"<<"\t"<<"  DeltaAngle = "<<DeltaAngle<<" [degree]"<<std::endl;
 }
 

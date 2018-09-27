@@ -1,24 +1,24 @@
-#ifndef VtxExtendedVertexFinder_H
-#define VtxExtendedVertexFinder_H
+#ifndef VtxPointVertexFinder_H
+#define VtxPointVertexFinder_H
 
 #include <string>
 #include <iostream>
 
 #include "Tool.h"
 
-class VtxExtendedVertexFinder: public Tool {
+class VtxPointVertexFinder: public Tool {
 
 
  public:
 
-  VtxExtendedVertexFinder();
+  VtxPointVertexFinder();
   bool Initialise(std::string configfile,DataModel &data);
   bool Execute();
   bool Finalise();
 
 
  private:
- 	/// \brief MC entry number
+  /// \brief MC entry number
   uint64_t fMCEventNum;
   
   /// \brief trigger number
@@ -28,20 +28,20 @@ class VtxExtendedVertexFinder: public Tool {
   uint32_t fEventNumber;
  	
  	/// \brief 
- 	RecoVertex* FitExtendedVertex(RecoVertex* myvertex);
+ 	RecoVertex* FitPointVertex(RecoVertex* myvertex);
  	
  	/// \brief Reset everything
  	void Reset();
  	
- 	/// \brief Push fitted extended vertex to store
- 	void PushExtendedVertex(RecoVertex* vtx, bool savetodisk);
+ 	/// \brief Push fitted point vertex to store
+ 	void PushPointVertex(RecoVertex* vtx, bool savetodisk);
  	
  	bool fUseTrueVertexAsSeed;
  	RecoVertex* fTrueVertex = 0;
  	std::vector<RecoDigit>* fDigitList = 0;
  	
- 	/// \brief extended vertex
- 	RecoVertex* fExtendedVertex = 0;
+ 	/// \brief point vertex
+ 	RecoVertex* fPointVertex = 0;
  	
  	/// verbosity levels: if 'verbosity' < this level, the message type will be logged.
   int verbosity=-1;
@@ -49,8 +49,6 @@ class VtxExtendedVertexFinder: public Tool {
 	int v_warning=1;
 	int v_message=2;
 	int v_debug=3;
-	std::string logmessage;
-	int get_ok;	
 
 
 

@@ -36,9 +36,18 @@ class VtxPointPositionFinder: public Tool {
  	/// \brief 
  	RecoVertex* FitPointPosition(RecoVertex* myvertex);
  	
+ 	/// \brief Find simple position
+ 	///
+ 	/// Find the best seed (x, y, z, t) from all the generated seed candidates
+ 	/// \param[] std::vector<RecoVertex>* vSeedVtxList: a vector of seed vertices
+  RecoVertex* FindSimplePosition(std::vector<RecoVertex>* vSeedVtxList);
+ 	
  	/// \brief Reset everything
  	void Reset();
  	
+ 	/// \brief Push selected simple position to store
+ 	void PushSimplePosition(RecoVertex* vtx, bool savetodisk);
+ 		
  	/// \brief Push fitted point position to store
  	void PushPointPosition(RecoVertex* vtx, bool savetodisk);
  	
