@@ -80,14 +80,26 @@ class PhaseIITreeMaker: public Tool {
   double fPointPosZ;
   double fPointPosTime;
   double fPointPosFOM;
+  int fPointPosStatus;
   double fPointDirX;
   double fPointDirY;
   double fPointDirZ;
   double fPointDirTime;
   double fPointDirFOM;
-  double fPointVtxFOM;
+  int fPointDirStatus;
   
-  // Vertex
+  // Point Vertex Finder
+  double fPointVtxPosX;
+  double fPointVtxPosY;
+  double fPointVtxPosZ;
+  double fPointVtxTime;
+  double fPointVtxDirX;
+  double fPointVtxDirY;
+  double fPointVtxDirZ;
+  double fPointVtxFOM;
+  int fPointVtxStatus;
+ 
+  // Extended Vertex
   double fRecoVtxX;
   double fRecoVtxY;
   double fRecoVtxZ;

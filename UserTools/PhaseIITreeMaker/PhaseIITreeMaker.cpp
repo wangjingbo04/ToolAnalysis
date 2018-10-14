@@ -64,19 +64,33 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   // Reconstructed variables from each step in Muon Reco Analysis
   // Currently output when muonRecoDebug_fill = 1 in config 
   if (muonRecoDebug_fill){
+    fRecoTree->Branch("seedVtxX",&fSeedVtxX); 
+    fRecoTree->Branch("seedVtxY",&fSeedVtxY); 
+    fRecoTree->Branch("seedVtxZ",&fSeedVtxZ); 
+    
     fRecoTree->Branch("pointPosX",&fPointPosX,"pointPosX/D");
     fRecoTree->Branch("pointPosY",&fPointPosY,"pointPosY/D");
     fRecoTree->Branch("pointPosZ",&fPointPosZ,"pointPosZ/D");
     fRecoTree->Branch("pointPosTime",&fPointPosTime,"pointPosTime/D");
     fRecoTree->Branch("pointPosFOM",&fPointPosFOM,"pointPosFOM/D");
+    fRecoTree->Branch("pointPosStatus",&fPointPosStatus,"pointPosStatus/I");
+    
     fRecoTree->Branch("pointDirX",&fPointDirX,"pointDirX/D");
     fRecoTree->Branch("pointDirY",&fPointDirY,"pointDirY/D");
     fRecoTree->Branch("pointDirZ",&fPointDirZ,"pointDirZ/D");
+    fRecoTree->Branch("pointDirTime",&fPointDirTime,"pointDirTime/D");
+    fRecoTree->Branch("pointDirStatus",&fPointDirStatus,"pointDirStatus/D");
     fRecoTree->Branch("pointDirFOM",&fPointDirFOM,"pointDirFOM/D");
+    
+    fRecoTree->Branch("pointVtxPosX",&fPointPosX,"pointVtxPosX/D");
+    fRecoTree->Branch("pointVtxPosY",&fPointPosY,"pointVtxPosY/D");
+    fRecoTree->Branch("pointVtxPosZ",&fPointPosZ,"pointVtxPosZ/D");
+    fRecoTree->Branch("pointVtxTime",&fPointVtxTime,"pointVtxTime/D");
+    fRecoTree->Branch("pointVtxDirX",&fPointDirX,"pointVtxDirX/D");
+    fRecoTree->Branch("pointVtxDirY",&fPointDirY,"pointVtxDirY/D");
+    fRecoTree->Branch("pointVtxDirZ",&fPointDirZ,"pointVtxDirZ/D");
     fRecoTree->Branch("pointVtxFOM",&fPointVtxFOM,"pointVtxFOM/D");
-    fRecoTree->Branch("seedVtxX",&fSeedVtxX); 
-    fRecoTree->Branch("seedVtxY",&fSeedVtxY); 
-    fRecoTree->Branch("seedVtxZ",&fSeedVtxZ); 
+    fRecoTree->Branch("pointVtxStatus",&fPointVtxStatus,"pointVtxStatus/D");
   } 
 
   // Difference in MC Truth and Muon Reconstruction Analysis
@@ -204,6 +218,7 @@ bool PhaseIITreeMaker::Execute(){
       fPointPosZ = pointposvtx->GetPosition().Z();
       fPointPosTime = pointposvtx->GetTime();
       fPointPosFOM = pointposvtx->GetFOM();
+      fPointPosStatus = pointposvtx->GetStatus();
     } else{
       Log("PhaseIITreeMaker Tool: No PointPosition Tool data found.  Continuing to build remaining tree",v_message,verbosity);
     }
@@ -217,6 +232,7 @@ bool PhaseIITreeMaker::Execute(){
       fPointDirZ = pointdirvtx->GetDirection().Z();
       fPointDirTime = pointdirvtx->GetTime();
       fPointDirFOM = pointdirvtx->GetFOM();
+      fPointDirStatus = pointdirvtx->GetStatus();
     } else{
       Log("PhaseIITreeMaker Tool: No PointDirection Tool data found.  Continuing to build remaining tree",v_message,verbosity);
     }
@@ -225,7 +241,15 @@ bool PhaseIITreeMaker::Execute(){
     RecoVertex* pointvtx = 0;
     auto get_pointvtxdata = m_data->Stores.at("RecoEvent")->Get("PointVertex",pointvtx);
     if(get_pointvtxdata){ 
+      fPointVtxPosX = pointvtx->GetPosition().X();
+      fPointVtxPosY = pointvtx->GetPosition().Y();
+      fPointVtxPosZ = pointvtx->GetPosition().Z();
+      fPointVtxDirX = pointvtx->GetDirection().X();
+      fPointVtxDirY = pointvtx->GetDirection().Y();
+      fPointVtxDirZ = pointvtx->GetDirection().Z();
+      fPointVtxTime = pointvtx->GetTime();
       fPointVtxFOM = pointvtx->GetFOM();
+      fPointVtxStatus = pointvtx->GetStatus();
     } else{
       Log("PhaseIITreeMaker Tool: No PointVertex Tool data found.  Continuing to build remaining tree",v_message,verbosity);
     }
@@ -284,10 +308,21 @@ void PhaseIITreeMaker::ResetVariables() {
     fPointPosZ = 0;
     fPointPosTime = 0;
     fPointPosFOM = 0;
+    fPointPosStatus = 0;
     fPointDirX = 0;
     fPointDirY = 0;
     fPointDirZ = 0;
+    fPointDirTime = 0;
     fPointDirFOM = 0;
+    fPointDirStatus = 0;
+    fPointVtxPosX = 0;
+    fPointVtxPosY = 0;
+    fPointVtxPosZ = 0;
+    fPointVtxDirX = 0;
+    fPointVtxDirY = 0;
+    fPointVtxDirZ = 0;
+    fPointVtxTime = 0;
+    fPointVtxStatus = 0;
     fPointVtxFOM = 0;
   } 
   fRecoVtxX = 0;
