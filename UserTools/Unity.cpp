@@ -64,3 +64,8 @@
 #include "VtxExtendedVertexFinder/VtxExtendedVertexFinder.cpp"
 #include "VtxPointDirectionFinder/VtxPointDirectionFinder.cpp"
 #include "VtxPointVertexFinder/VtxPointVertexFinder.cpp"
+#include "LoadCCData/LoadCCData.cpp"
+#include "LoadCCData/MRDTree.cpp"
+#include "LoadCCData/PMTData.cpp"
+//#include "LoadCCData/RunInformation.cpp"
+//#include "LoadCCData/TrigData.cpp"
