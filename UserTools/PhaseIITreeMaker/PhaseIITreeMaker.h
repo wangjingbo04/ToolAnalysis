@@ -112,7 +112,6 @@ class PhaseIITreeMaker: public Tool {
   double fRecoPhi;
   int fRecoStatus;
   
-  //histograms
   double fDeltaVtxX; 
   double fDeltaVtxY;
   double fDeltaVtxZ;

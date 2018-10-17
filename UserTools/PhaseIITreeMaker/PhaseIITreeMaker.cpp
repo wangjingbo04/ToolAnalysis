@@ -46,9 +46,11 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   fRecoTree->Branch("recoDirX",&fRecoDirX,"recoDirX/D");
   fRecoTree->Branch("recoDirY",&fRecoDirY,"recoDirY/D");
   fRecoTree->Branch("recoDirZ",&fRecoDirZ,"recoDirZ/D");
+  fRecoTree->Branch("recoTheta",&fRecoTheta,"recoTheta/D");
+  fRecoTree->Branch("recoPhi",&fRecoPhi,"recoPhi/D");
   fRecoTree->Branch("recoVtxFOM",&fRecoVtxFOM,"recoVtxFOM/D");
   fRecoTree->Branch("recoStatus",&fRecoStatus,"recoStatus/I");
- 
+  
   //MC truth information for muons
   //Output to tree when muonMCTruth_fill = 1 in config
   if (muonMCTruth_fill){
@@ -59,6 +61,8 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
     fRecoTree->Branch("trueDirX",&fTrueDirX,"trueDirX/D");
     fRecoTree->Branch("trueDirY",&fTrueDirY,"trueDirY/D");
     fRecoTree->Branch("trueDirZ",&fTrueDirZ,"trueDirZ/D");
+    fRecoTree->Branch("trueTheta",&fTrueTheta,"trueTheta/D");
+    fRecoTree->Branch("truePhi",&fTruePhi,"truePhi/D");
   }
   
   // Reconstructed variables from each step in Muon Reco Analysis
@@ -178,6 +182,20 @@ bool PhaseIITreeMaker::Execute(){
   fRecoDirX = recovtx->GetDirection().X();
   fRecoDirY = recovtx->GetDirection().Y();
   fRecoDirZ = recovtx->GetDirection().Z();
+  fRecoTheta = TMath::ACos(fRecoDirZ);
+  if (fRecoDirX>0.0){
+    fRecoPhi = atan(fRecoDirY/fRecoDirX);
+  }
+  if (fRecoDirX<0.0){
+    fRecoPhi = atan(fRecoDirY/fRecoDirX);
+    if( fRecoDirY>0.0) fRecoPhi += TMath::Pi();
+    if( fRecoDirY<=0.0) fRecoPhi -= TMath::Pi();
+  }
+  if (fRecoDirX==0.0){
+    if( fRecoDirY>0.0) fRecoPhi = 0.5*TMath::Pi();
+    else if( fRecoDirY<0.0) fRecoPhi = -0.5*TMath::Pi();
+    else fRecoPhi = 0;
+  }
   fRecoStatus = recovtx->GetStatus();
  
   // Read True Vertex if flag is set   
@@ -191,6 +209,20 @@ bool PhaseIITreeMaker::Execute(){
     fTrueDirX = truevtx->GetDirection().X();
     fTrueDirY = truevtx->GetDirection().Y();
     fTrueDirZ = truevtx->GetDirection().Z();
+    fTrueTheta = TMath::ACos(fTrueDirZ);
+    if (fTrueDirX>0.0){
+      fTruePhi = atan(fTrueDirY/fTrueDirX);
+    }
+    if (fTrueDirX<0.0){
+      fTruePhi = atan(fTrueDirY/fTrueDirX);
+      if( fTrueDirY>0.0) fTruePhi += TMath::Pi();
+      if( fTrueDirY<=0.0) fTruePhi -= TMath::Pi();
+    }
+    if (fTrueDirX==0.0){
+      if( fTrueDirY>0.0) fTruePhi = 0.5*TMath::Pi();
+      else if( fTrueDirY<0.0) fTruePhi = -0.5*TMath::Pi();
+      else fTruePhi = 0;
+    }
   } else {
     Log("PhaseIITreeMaker Tool: No MC Truth data found; is this MC?  Continuing to build remaining tree",v_message,verbosity);
   } 
@@ -263,6 +295,10 @@ bool PhaseIITreeMaker::Execute(){
     fDeltaVtxZ = fRecoVtxZ - fTrueVtxZ;
     fDeltaVtxT = fRecoVtxTime - fTrueVtxTime;
     fDeltaVtxR = sqrt(pow(fDeltaVtxX,2) + pow(fDeltaVtxY,2) + pow(fDeltaVtxZ,2)); 
+    fDeltaParallel = fDeltaVtxX*fRecoDirX + fDeltaVtxY*fRecoDirY + fDeltaVtxZ*fRecoDirZ;
+    fDeltaPerpendicular = sqrt(pow(fDeltaVtxR,2) - pow(fDeltaParallel,2));
+    fDeltaAzimuth = (fRecoTheta - fTrueTheta)/(TMath::Pi()/180.0);
+    fDeltaZenith = (fRecoPhi - fTruePhi)/(TMath::Pi()/180.0); 
     double cosphi = fTrueDirX*fRecoDirX+fTrueDirY*fRecoDirY+fTrueDirZ*fRecoDirZ;
     double phi = TMath::ACos(cosphi); // radians
     double TheAngle = phi/(TMath::Pi()/180.0); // radians->degrees
@@ -298,6 +334,8 @@ void PhaseIITreeMaker::ResetVariables() {
   fTrueDirX = 0;
   fTrueDirY = 0;
   fTrueDirZ = 0;
+  fTrueTheta = 0;
+  fTruePhi = 0;
  
   if (muonRecoDebug_fill){ 
     fSeedVtxX.clear();
@@ -334,6 +372,8 @@ void PhaseIITreeMaker::ResetVariables() {
   fRecoDirX = 0;
   fRecoDirY = 0;
   fRecoDirZ = 0;
+  fRecoTheta = 0;
+  fRecoPhi = 0;
   fIsFiltered.clear();
   fDigitX.clear();
   fDigitY.clear();
