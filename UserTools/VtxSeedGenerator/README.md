@@ -14,6 +14,24 @@ Describe any data formats VtxSeedGenerator creates, destroys, changes, or analyz
 Describe any configuration variables for VtxSeedGenerator.
 
 ```
-param1 value1
-param2 value2
+	m_variables.Get("SeedType",fSeedType);
+	m_variables.Get("NumberOfSeeds", fNumSeeds);
+	m_variables.Get("verbosity", verbosity);
+	m_variables.Get("UseSeedGrid", UseSeedGrid);
+SeedType (int)
+NumberOfSeeds (int)
+verbosity (int)
+UseSeedGrid (bool)
+
+SeedType specifies whether to use PMTs, LAPPDs, or all.  Integer to digit
+type key is...
+
+NumberOfSeeds specifies how many points to generate in the grid, or how
+many seeds to predict using the quad fitting technique.
+
+If UseSeedGrid is used, vertex seeds are generated evenly through the ANNIE
+cylinder.  The vertex time is the median of the time distribution calculated
+extrapolating each hit back to the vertex position via speed of light in the
+medium.
+
 ```

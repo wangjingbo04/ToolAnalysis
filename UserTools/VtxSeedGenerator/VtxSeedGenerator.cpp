@@ -25,6 +25,7 @@ bool VtxSeedGenerator::Initialise(std::string configfile, DataModel &data){
 	m_variables.Get("SeedType",fSeedType);
 	m_variables.Get("NumberOfSeeds", fNumSeeds);
 	m_variables.Get("verbosity", verbosity);
+	m_variables.Get("UseSeedGrid", UseSeedGrid);
   
   // Make the ANNIEEvent Store if it doesn't exist
 	// =============================================
@@ -76,7 +77,11 @@ bool VtxSeedGenerator::Execute(){
   }
 
   // Generate vertex candidates and push to "RecoEvent" store
-  this->GenerateVertexSeeds(fNumSeeds);
+  if (UseSeedGrid){
+    this->GenerateSeedGrid(fNumSeeds);
+  } else {
+    this->GenerateVertexSeeds(fNumSeeds);
+  }
   this->PushVertexSeeds(true);
 
   return true;
@@ -92,8 +97,116 @@ void VtxSeedGenerator::Reset() {
 	vSeedVtxList->clear();
 }
 
+bool VtxSeedGenerator::GenerateSeedGrid(int NSeeds) {
+  // reset list of seeds
+  vSeedVtxList->clear();
+  
+  // always calculate the simple vertex first
+  double VtxX1 = 0.0;
+  double VtxY1 = 0.0;
+  double VtxZ1 = 0.0;
+  double VtxTime1 = 0.0;
+  this->CalcSimpleVertex(VtxX1,VtxY1,VtxZ1,VtxTime1);
+  
+  // add this vertex to seed list
+  RecoVertex vtxseed;
+  vtxseed.SetVertex(VtxX1,VtxY1,VtxZ1,VtxTime1);
+  vSeedVtxList->push_back(vtxseed);
+  
+  // check limit
+  if( NSeeds<=1 ) return false;
+
+  // form list of golden digits used in class methods
+  // Here, the digit type (PMT or LAPPD or all) is specified. 
+  vSeedDigitList.clear();  
+  RecoDigit digit;
+  for( fThisDigit=0; fThisDigit<fDigitList->size(); fThisDigit++ ){
+  	digit = fDigitList->at(fThisDigit);
+    if( digit.GetFilterStatus() ){ 
+      if( digit.GetDigitType() == fSeedType){ 
+        vSeedDigitList.push_back(fThisDigit);
+      }
+    }
+  }
+
+  //Now, we generate our grid of position/time guesses.  Position first.
+  //We will use Vogel's method to populate disks with equidistant points
+  //inside the ANNIE tank.  The z separation for each disk will be approx. the
+  //average separation of points on the disk.
+  
+  //Here, we need to get the radius and height of the ANNIE tank from the geo
+  double tankradius = ANNIEGeometry::Instance()->GetCylRadius();	
+  double tanklength = ANNIEGeometry::Instance()->GetCylLength();	
+  
+  //Assuming roughly equal distance, we can calculate the number of
+  //layers needed to have close to even spacing, and # points on each disk
+  double approx_points = pow((NSeeds*tankradius/height),(2.0/3.0));
+  int numlayers = (int) pow(pow(tankradius,2)/approx_points,(1.0/2.0));
+  int points_ondisk = (int) approx_points;
+
+  //Now, fill a vector of doubles with the xy plane points 
+  std::vector<double> xpoints = nullptr;
+  std::vector<double> zpoints = nullptr;
+  double increment = TMath::Pi() * (3.0 - sqrt(5.0));
+  for (int i=0; i<points_ondisk; i++) {
+    double ind = (double) i;
+    double phi = ind * increment;
+    double radius = tankradius * sqrt(ind/approx_points);
+    double z = radius * cos(phi); //z is the beam axis
+    double x = radius * sin(phi);
+    xpoints.push_back(x);
+    zpoints.push_back(z);
+  }
+
+  //Now, push a vertex for each point in each disk layer
+  for (int j=0; j<numlayers; j++){
+    for (int k=0; k<points_ondisk; k++) {
+      double diskind = (double) j;
+      double layers = (double) numlayers;
+      double disk_height = tanklength*((diskind+0.5)/layers) - (tanklength/2.0);
+      Position thisgridpos;
+      thisgridpos.SetX(xpoints[k]);
+      thisgridpos.SetZ(zpoints[k]);
+      thisgridpos.SetY(disk_height);
+      double mediantime;
+      mediantime = this->GetMedianSeedTime(thisgridpos);
+      RecoVertex thisgridseed;
+      thisgridseed.SetVertex(thisgridpos,mediantime);
+      vSeedVtxList->push_back(thisgridseed);
+    }
+  }
+}
+
+double VtxSeedGenerator::GetMedianSeedTime(Position pos){
+  std::vector<double> extraptimes;
+  for (int entry=0; entry<vSeedDigitList.size(); entry++){
+    fThisDigit = vSeedDigitList.at(entry);
+    double digitx = fDigitList->at(fThisDigit).GetPosition().X();
+    double digity = fDigitList->at(fThisDigit).GetPosition().Y();
+    double digitz = fDigitList->at(fThisDigit).GetPosition().Z();
+    double digittime = fDigitList->at(fThisDigit).GetCalTime();
+    //Now, find distance to seed position
+    double dx = digitx - pos.GetX();
+    double dy = digity - pos.GetY();
+    double dz = digitz - pos.GetZ();
+    double dr = sqrt(pow(dx,2) + pow(dy,2) + pow(dz,2));
+
+    //Back calculate to the vertex time using speed of light in H20
+    //Very rough estimate; ignores muon path before Cherenkov production
+    //TODO: add charge weighting?  Kinda like CalcSimpleVertex?
+    fC = Parameters::SpeedOfLight();
+    fN = Parameters::Index0();
+    double seedtime = digittime - (dr/(fC/fN));
+    extraptimes.push_back(seedtime);
+  }
+  //return the median of the extrapolated vertex times
+  size_t median_index = extraptimes.size() / 2;
+  std::nth_element(extraptimes.begin(), extraptimes.begin()+median_index, extraptimes.end());
+  return extraptimes[median_index];
+  
+
 bool VtxSeedGenerator::GenerateVertexSeeds(int NSeeds) {
-	double VtxX1 = 0.0;
+  double VtxX1 = 0.0;
   double VtxY1 = 0.0;
   double VtxZ1 = 0.0;
   double VtxTime1 = 0.0;
@@ -115,7 +228,7 @@ bool VtxSeedGenerator::GenerateVertexSeeds(int NSeeds) {
   
   // form list of golden digits
   // Digit quality cut can be applied here. 
-  // However, the DataCleaner class is a better place to do the cuts. 
+  // However, the HitCleaner class is a better place to do the cuts. 
   // Here only the digit type (PMT or LAPPD or all) is specified. 
   vSeedDigitList.clear();  
   RecoDigit digit;

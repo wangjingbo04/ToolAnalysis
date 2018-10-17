@@ -6,6 +6,7 @@
 
 #include "Tool.h"
 #include "ANNIEGeometry.h"
+#include "Parameters.h"
 
 class VtxSeedGenerator: public Tool {
 
@@ -23,7 +24,12 @@ class VtxSeedGenerator: public Tool {
  	///
  	/// Clear true vertex and vertex seed list
  	void Reset();
- 	
+ 
+        /// \brief Grid Seed calculator
+        ///
+	bool GenerateSeedGrid(int NSeeds);	
+	/// from the position to a digit
+	bool GetMedianSeedTime(Position pos);	
  	
  	/// \brief Calculate seed candidate
  	///
@@ -73,8 +79,12 @@ class VtxSeedGenerator: public Tool {
   int fSeedType;
   std::vector<RecoVertex>* vSeedVtxList = nullptr;
   std::vector<int> vSeedDigitList;	///< a vector thats stores the index of the digits used to calculate the seeds
- 	std::vector<RecoDigit>* fDigitList=nullptr;
- 	
+  std::vector<RecoDigit>* fDigitList=nullptr;
+
+  // Initialize the list that grid vertices will go to
+  int UseSeedGrid=0;
+  std::vector<RecoVertex>* SeedGridList = nullptr;
+  
   /// verbosity levels: if 'verbosity' < this level, the message type will be logged.
   int verbosity=-1;
 	int v_error=0;
@@ -82,6 +92,7 @@ class VtxSeedGenerator: public Tool {
 	int v_message=2;
 	int v_debug=3;
 	std::string logmessage;
+ 
 	
 
 };
