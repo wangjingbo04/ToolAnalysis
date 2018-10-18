@@ -29,7 +29,7 @@ class VtxSeedGenerator: public Tool {
         ///
 	bool GenerateSeedGrid(int NSeeds);	
 	/// from the position to a digit
-	bool GetMedianSeedTime(Position pos);	
+	double GetMedianSeedTime(Position pos);	
  	
  	/// \brief Calculate seed candidate
  	///

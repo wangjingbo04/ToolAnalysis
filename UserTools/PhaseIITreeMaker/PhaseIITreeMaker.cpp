@@ -71,6 +71,7 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
     fRecoTree->Branch("seedVtxX",&fSeedVtxX); 
     fRecoTree->Branch("seedVtxY",&fSeedVtxY); 
     fRecoTree->Branch("seedVtxZ",&fSeedVtxZ); 
+    fRecoTree->Branch("seedVtxTime",&fSeedVtxTime,"seedVtxTime/D");
     
     fRecoTree->Branch("pointPosX",&fPointPosX,"pointPosX/D");
     fRecoTree->Branch("pointPosY",&fPointPosY,"pointPosY/D");
@@ -86,13 +87,13 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
     fRecoTree->Branch("pointDirStatus",&fPointDirStatus,"pointDirStatus/D");
     fRecoTree->Branch("pointDirFOM",&fPointDirFOM,"pointDirFOM/D");
     
-    fRecoTree->Branch("pointVtxPosX",&fPointPosX,"pointVtxPosX/D");
-    fRecoTree->Branch("pointVtxPosY",&fPointPosY,"pointVtxPosY/D");
-    fRecoTree->Branch("pointVtxPosZ",&fPointPosZ,"pointVtxPosZ/D");
+    fRecoTree->Branch("pointVtxPosX",&fPointVtxPosX,"pointVtxPosX/D");
+    fRecoTree->Branch("pointVtxPosY",&fPointVtxPosY,"pointVtxPosY/D");
+    fRecoTree->Branch("pointVtxPosZ",&fPointVtxPosZ,"pointVtxPosZ/D");
     fRecoTree->Branch("pointVtxTime",&fPointVtxTime,"pointVtxTime/D");
-    fRecoTree->Branch("pointVtxDirX",&fPointDirX,"pointVtxDirX/D");
-    fRecoTree->Branch("pointVtxDirY",&fPointDirY,"pointVtxDirY/D");
-    fRecoTree->Branch("pointVtxDirZ",&fPointDirZ,"pointVtxDirZ/D");
+    fRecoTree->Branch("pointVtxDirX",&fPointVtxDirX,"pointVtxDirX/D");
+    fRecoTree->Branch("pointVtxDirY",&fPointVtxDirY,"pointVtxDirY/D");
+    fRecoTree->Branch("pointVtxDirZ",&fPointVtxDirZ,"pointVtxDirZ/D");
     fRecoTree->Branch("pointVtxFOM",&fPointVtxFOM,"pointVtxFOM/D");
     fRecoTree->Branch("pointVtxStatus",&fPointVtxStatus,"pointVtxStatus/D");
   } 
@@ -236,6 +237,7 @@ bool PhaseIITreeMaker::Execute(){
         fSeedVtxX.push_back(seed.GetPosition().X());
         fSeedVtxY.push_back(seed.GetPosition().Y());
         fSeedVtxZ.push_back(seed.GetPosition().Z());
+        fSeedVtxTime = seed.GetTime();
       }
     } else {  
   	Log("PhaseIITreeMaker  Tool: No Seed List found.  Continuing to build tree ",v_message,verbosity); 
@@ -341,6 +343,7 @@ void PhaseIITreeMaker::ResetVariables() {
     fSeedVtxX.clear();
     fSeedVtxY.clear();
     fSeedVtxZ.clear();
+    fSeedVtxTime = 0;
     fPointPosX = 0;
     fPointPosY = 0;
     fPointPosZ = 0;

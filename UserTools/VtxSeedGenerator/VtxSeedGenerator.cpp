@@ -140,13 +140,13 @@ bool VtxSeedGenerator::GenerateSeedGrid(int NSeeds) {
   
   //Assuming roughly equal distance, we can calculate the number of
   //layers needed to have close to even spacing, and # points on each disk
-  double approx_points = pow((NSeeds*tankradius/height),(2.0/3.0));
+  double approx_points = pow((NSeeds*tankradius/tanklength),(2.0/3.0));
   int numlayers = (int) pow(pow(tankradius,2)/approx_points,(1.0/2.0));
   int points_ondisk = (int) approx_points;
 
   //Now, fill a vector of doubles with the xy plane points 
-  std::vector<double> xpoints = nullptr;
-  std::vector<double> zpoints = nullptr;
+  std::vector<double> xpoints;
+  std::vector<double> zpoints;
   double increment = TMath::Pi() * (3.0 - sqrt(5.0));
   for (int i=0; i<points_ondisk; i++) {
     double ind = (double) i;
@@ -178,32 +178,36 @@ bool VtxSeedGenerator::GenerateSeedGrid(int NSeeds) {
 }
 
 double VtxSeedGenerator::GetMedianSeedTime(Position pos){
+  double digitx, digity, digitz, digittime;
+  double dx,dy,dz,dr;
+  double fC, fN;
+  double seedtime;
   std::vector<double> extraptimes;
   for (int entry=0; entry<vSeedDigitList.size(); entry++){
     fThisDigit = vSeedDigitList.at(entry);
-    double digitx = fDigitList->at(fThisDigit).GetPosition().X();
-    double digity = fDigitList->at(fThisDigit).GetPosition().Y();
-    double digitz = fDigitList->at(fThisDigit).GetPosition().Z();
-    double digittime = fDigitList->at(fThisDigit).GetCalTime();
+    digitx = fDigitList->at(fThisDigit).GetPosition().X();
+    digity = fDigitList->at(fThisDigit).GetPosition().Y();
+    digitz = fDigitList->at(fThisDigit).GetPosition().Z();
+    digittime = fDigitList->at(fThisDigit).GetCalTime();
     //Now, find distance to seed position
-    double dx = digitx - pos.GetX();
-    double dy = digity - pos.GetY();
-    double dz = digitz - pos.GetZ();
-    double dr = sqrt(pow(dx,2) + pow(dy,2) + pow(dz,2));
+    dx = digitx - pos.X();
+    dy = digity - pos.Y();
+    dz = digitz - pos.Z();
+    dr = sqrt(pow(dx,2) + pow(dy,2) + pow(dz,2));
 
     //Back calculate to the vertex time using speed of light in H20
     //Very rough estimate; ignores muon path before Cherenkov production
     //TODO: add charge weighting?  Kinda like CalcSimpleVertex?
     fC = Parameters::SpeedOfLight();
     fN = Parameters::Index0();
-    double seedtime = digittime - (dr/(fC/fN));
+    seedtime = digittime - (dr/(fC/fN));
     extraptimes.push_back(seedtime);
   }
   //return the median of the extrapolated vertex times
   size_t median_index = extraptimes.size() / 2;
   std::nth_element(extraptimes.begin(), extraptimes.begin()+median_index, extraptimes.end());
   return extraptimes[median_index];
-  
+}  
 
 bool VtxSeedGenerator::GenerateVertexSeeds(int NSeeds) {
   double VtxX1 = 0.0;
