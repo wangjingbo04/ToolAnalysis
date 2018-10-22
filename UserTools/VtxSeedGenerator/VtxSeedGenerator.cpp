@@ -126,9 +126,19 @@ bool VtxSeedGenerator::GenerateSeedGrid(int NSeeds) {
       if( digit.GetDigitType() == fSeedType){ 
         vSeedDigitList.push_back(fThisDigit);
       }
+      else if (fSeedType == 2){
+        //Use all digits available
+        vSeedDigitList.push_back(fThisDigit);
+      }
     }
   }
-
+  
+  // Recure at least 5 hits to calculate median times 
+  if( vSeedDigitList.size()<5 ) {
+    Log("VtxSeedGenerator Tool: The number of digits is less than 5! ",v_message,verbosity);
+    return false;
+  }
+  	
   //Now, we generate our grid of position/time guesses.  Position first.
   //We will use Vogel's method to populate disks with equidistant points
   //inside the ANNIE tank.  The z separation for each disk will be approx. the
@@ -145,30 +155,31 @@ bool VtxSeedGenerator::GenerateSeedGrid(int NSeeds) {
   int points_ondisk = (int) approx_points;
 
   //Now, fill a vector of doubles with the xy plane points 
+  double ind, phi, radius, z, x; 
   std::vector<double> xpoints;
   std::vector<double> zpoints;
   double increment = TMath::Pi() * (3.0 - sqrt(5.0));
   for (int i=0; i<points_ondisk; i++) {
-    double ind = (double) i;
-    double phi = ind * increment;
-    double radius = tankradius * sqrt(ind/approx_points);
-    double z = radius * cos(phi); //z is the beam axis
-    double x = radius * sin(phi);
+    ind = (double) i;
+    phi = ind * increment;
+    radius = tankradius * sqrt(ind/approx_points);
+    z = radius * cos(phi); //z is the beam axis
+    x = radius * sin(phi);
     xpoints.push_back(x);
     zpoints.push_back(z);
   }
 
   //Now, push a vertex for each point in each disk layer
+  double diskind,layers,disk_height,mediantime;
   for (int j=0; j<numlayers; j++){
     for (int k=0; k<points_ondisk; k++) {
-      double diskind = (double) j;
-      double layers = (double) numlayers;
-      double disk_height = tanklength*((diskind+0.5)/layers) - (tanklength/2.0);
+      diskind = (double) j;
+      layers = (double) numlayers;
+      disk_height = tanklength*((diskind+0.5)/layers) - (tanklength/2.0);
       Position thisgridpos;
       thisgridpos.SetX(xpoints[k]);
       thisgridpos.SetZ(zpoints[k]);
       thisgridpos.SetY(disk_height);
-      double mediantime;
       mediantime = this->GetMedianSeedTime(thisgridpos);
       RecoVertex thisgridseed;
       thisgridseed.SetVertex(thisgridpos,mediantime);
@@ -240,6 +251,10 @@ bool VtxSeedGenerator::GenerateVertexSeeds(int NSeeds) {
   	digit = fDigitList->at(fThisDigit);
     if( digit.GetFilterStatus() ){ 
       if( digit.GetDigitType() == fSeedType){ 
+        vSeedDigitList.push_back(fThisDigit);
+      }
+      else if (fSeedType == 2){
+        //Use all digits available
         vSeedDigitList.push_back(fThisDigit);
       }
     }

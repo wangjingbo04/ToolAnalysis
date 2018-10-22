@@ -23,9 +23,11 @@ NumberOfSeeds (int)
 verbosity (int)
 UseSeedGrid (bool)
 
-SeedType specifies whether to use PMTs, LAPPDs, or all.  Integer to digit
-type key is...
-
+SeedType specifies whether to use PMTs, LAPPDs, or all. 
+SeedType 0: Use only LAPPDs for seed
+SeedType 1: User only LAPPDs for seed
+SeedType 2: Use both the LAPPDs and the PMTs
+ 
 NumberOfSeeds specifies how many points to generate in the grid, or how
 many seeds to predict using the quad fitting technique.
 
