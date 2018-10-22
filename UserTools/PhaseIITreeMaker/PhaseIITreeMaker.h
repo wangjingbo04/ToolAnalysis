@@ -55,6 +55,7 @@ class PhaseIITreeMaker: public Tool {
   std::vector<double> fDigitT;
   std::vector<double> fDigitQ;    
   std::vector<int> fDigitType;
+  std::vector<int> fDigitDetID;
   	
   // True muon
   double fTrueVtxX;

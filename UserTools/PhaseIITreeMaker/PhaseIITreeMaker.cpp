@@ -36,7 +36,8 @@ bool PhaseIITreeMaker::Initialise(std::string configfile, DataModel &data){
   fRecoTree->Branch("digitT",&fDigitT);
   fRecoTree->Branch("digitQ",&fDigitQ);
   fRecoTree->Branch("digitType", &fDigitType);
-  
+  fRecoTree->Branch("digitDetID", &fDigitDetID);
+
   //Reconstructed variables after full Muon Reco Analysis
   //Always output in Phase II Reco Tree
   fRecoTree->Branch("recoVtxX",&fRecoVtxX,"recoVtxX/D");
@@ -166,6 +167,7 @@ bool PhaseIITreeMaker::Execute(){
     fDigitT.push_back(digit.GetCalTime());      
     fDigitQ.push_back(digit.GetCalCharge());
     fDigitType.push_back(digit.GetDigitType());
+    fDigitDetID.push_back(digit.GetDetectorID());
   }
   
   // Read reconstructed Vertex
@@ -383,7 +385,8 @@ void PhaseIITreeMaker::ResetVariables() {
   fDigitZ.clear();
   fDigitT.clear();
   fDigitQ.clear();
-  fDigitType.clear();	
+  fDigitType.clear();
+  fDigitDetID.clear();	
   
   if (muonTruthRecoDiff_fill){ 
     fDeltaVtxX = 0;
