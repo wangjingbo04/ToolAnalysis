@@ -59,6 +59,7 @@ if (tool=="EventSelector") ret=new EventSelector;
 if (tool=="SaveRecoEvent") ret=new SaveRecoEvent;
 if (tool=="VtxExtendedVertexFinder") ret=new VtxExtendedVertexFinder;
 if (tool=="VtxPointDirectionFinder") ret=new VtxPointDirectionFinder;
-  if (tool=="VtxPointVertexFinder") ret=new VtxPointVertexFinder;
+if (tool=="VtxPointVertexFinder") ret=new VtxPointVertexFinder;
+if (tool=="LoadCCData") ret=new LoadCCData;
 return ret;
 }

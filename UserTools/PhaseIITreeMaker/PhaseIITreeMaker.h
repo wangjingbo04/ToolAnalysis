@@ -55,6 +55,7 @@ class PhaseIITreeMaker: public Tool {
   std::vector<double> fDigitT;
   std::vector<double> fDigitQ;    
   std::vector<int> fDigitType;
+  std::vector<int> fDigitDetID;
   	
   // True muon
   double fTrueVtxX;
@@ -72,7 +73,8 @@ class PhaseIITreeMaker: public Tool {
   std::vector<double> fSeedVtxX;
   std::vector<double> fSeedVtxY;
   std::vector<double> fSeedVtxZ;
-
+  double fSeedVtxTime;
+  
   // Reco vertex
   // Point Position Vertex
   double fPointPosX;
@@ -80,14 +82,26 @@ class PhaseIITreeMaker: public Tool {
   double fPointPosZ;
   double fPointPosTime;
   double fPointPosFOM;
+  int fPointPosStatus;
   double fPointDirX;
   double fPointDirY;
   double fPointDirZ;
   double fPointDirTime;
   double fPointDirFOM;
-  double fPointVtxFOM;
+  int fPointDirStatus;
   
-  // Vertex
+  // Point Vertex Finder
+  double fPointVtxPosX;
+  double fPointVtxPosY;
+  double fPointVtxPosZ;
+  double fPointVtxTime;
+  double fPointVtxDirX;
+  double fPointVtxDirY;
+  double fPointVtxDirZ;
+  double fPointVtxFOM;
+  int fPointVtxStatus;
+ 
+  // Extended Vertex
   double fRecoVtxX;
   double fRecoVtxY;
   double fRecoVtxZ;
@@ -100,7 +114,6 @@ class PhaseIITreeMaker: public Tool {
   double fRecoPhi;
   int fRecoStatus;
   
-  //histograms
   double fDeltaVtxX; 
   double fDeltaVtxY;
   double fDeltaVtxZ;

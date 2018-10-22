@@ -165,6 +165,7 @@ bool DigitBuilder::BuildPMTRecoDigit() {
 			// and a DetectorElementIndex, i.e. the ID of the detector of that type
 			// get PMT position
 			det = fGeometry.GetDetector(chankey);
+			int PMTId = det.GetDetectorId();
 			if(det.GetDetectorElement() == "") {
 				Log("DigitBuilder Tool: Detector not found! ",v_message,verbosity);
 				continue;
@@ -188,7 +189,7 @@ bool DigitBuilder::BuildPMTRecoDigit() {
 					calT = ahit.GetTime()*1.0 - 950.0; // remove 950 ns offs
 					calQ = ahit.GetCharge();
 					digitType = RecoDigit::PMT8inch;
-					RecoDigit recoDigit(region, pos_reco, calT, calQ, digitType);
+					RecoDigit recoDigit(region, pos_reco, calT, calQ, digitType, PMTId);
 				  //recoDigit.Print();
 				  fDigitList->push_back(recoDigit); 
         }
@@ -207,6 +208,7 @@ bool DigitBuilder::BuildLAPPDRecoDigit() {
 	double calT = 0;
 	double calQ = 0;
 	int digitType = -999;
+        int LAPPDId = -1;
 	Detector det;
 	Position  pos_sim, pos_reco;
   // repeat for LAPPD hits
@@ -218,9 +220,10 @@ bool DigitBuilder::BuildLAPPDRecoDigit() {
 			ChannelKey chankey = apair.first;
 			det = fGeometry.GetDetector(chankey);
 			//Tube ID is different from that in ANNIEReco
-			//int LAPPDId = det.GetDetectorId();
+			LAPPDId = det.GetDetectorId();
 			//if(LAPPDId != 266 && LAPPDId != 271 && LAPPDId != 236 && LAPPDId != 231 && LAPPDId != 206) continue;
-			if(chankey.GetSubDetectorType()==subdetector::LAPPD){ // redundant
+			if(LAPPDId != 90 && LAPPDId != 83 && LAPPDId != 56 && LAPPDId != 59 && LAPPDId != 22) continue;
+                        if(chankey.GetSubDetectorType()==subdetector::LAPPD){ // redundant
 				std::vector<LAPPDHit>& hits = apair.second;
 				for(LAPPDHit& ahit : hits){
 					//if(v_message<verbosity) ahit.Print(); // << VERY verbose
@@ -239,7 +242,7 @@ bool DigitBuilder::BuildLAPPDRecoDigit() {
 					// here I just set the charge to 1. We should come back to this later. (Jingbo Wang)
 					calQ = 1.;
 					digitType = RecoDigit::lappd_v0;
-					RecoDigit recoDigit(region, pos_reco, calT, calQ, digitType);
+					RecoDigit recoDigit(region, pos_reco, calT, calQ, digitType,LAPPDId);
 					//if(v_message<verbosity) recoDigit.Print();
 				  fDigitList->push_back(recoDigit);
 				}
