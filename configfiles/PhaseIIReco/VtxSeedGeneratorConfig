@@ -2,8 +2,5 @@
 
 verbosity 3
 NumberOfSeeds 1000
-SeedType 1
-
-
-
-
+UseSeedGrid 1
+SeedType 2

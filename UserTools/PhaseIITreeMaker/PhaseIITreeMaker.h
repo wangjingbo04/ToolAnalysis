@@ -55,6 +55,7 @@ class PhaseIITreeMaker: public Tool {
   std::vector<double> fDigitT;
   std::vector<double> fDigitQ;    
   std::vector<int> fDigitType;
+  std::vector<int> fDigitDetID;
   	
   // True muon
   double fTrueVtxX;
@@ -72,9 +73,35 @@ class PhaseIITreeMaker: public Tool {
   std::vector<double> fSeedVtxX;
   std::vector<double> fSeedVtxY;
   std::vector<double> fSeedVtxZ;
+  double fSeedVtxTime;
   
   // Reco vertex
-  // Vertex
+  // Point Position Vertex
+  double fPointPosX;
+  double fPointPosY;
+  double fPointPosZ;
+  double fPointPosTime;
+  double fPointPosFOM;
+  int fPointPosStatus;
+  double fPointDirX;
+  double fPointDirY;
+  double fPointDirZ;
+  double fPointDirTime;
+  double fPointDirFOM;
+  int fPointDirStatus;
+  
+  // Point Vertex Finder
+  double fPointVtxPosX;
+  double fPointVtxPosY;
+  double fPointVtxPosZ;
+  double fPointVtxTime;
+  double fPointVtxDirX;
+  double fPointVtxDirY;
+  double fPointVtxDirZ;
+  double fPointVtxFOM;
+  int fPointVtxStatus;
+ 
+  // Extended Vertex
   double fRecoVtxX;
   double fRecoVtxY;
   double fRecoVtxZ;
@@ -82,34 +109,36 @@ class PhaseIITreeMaker: public Tool {
   double fRecoDirX;
   double fRecoDirY;
   double fRecoDirZ;
+  double fRecoVtxFOM;
   double fRecoTheta;
   double fRecoPhi;
   int fRecoStatus;
   
-  //histograms
-  TH1D *hDeltaX; 
-  TH1D *hDeltaY;
-  TH1D *hDeltaZ;
-  TH1D *hDeltaR;
-  TH1D *hDeltaT;
-  TH1D *hDeltaParralel;
-  TH1D *hDeltaPerpendicular;
-  TH1D *hDeltaAzimuth;
-  TH1D *hDeltaZenith;  
-  TH1D *hDeltaAngle;
-  TH1I *hFitStatus;
+  double fDeltaVtxX; 
+  double fDeltaVtxY;
+  double fDeltaVtxZ;
+  double fDeltaVtxR;
+  double fDeltaVtxT;
+  double fDeltaParallel;
+  double fDeltaPerpendicular;
+  double fDeltaAzimuth;
+  double fDeltaZenith;  
+  double fDeltaAngle;
   
   	
   /// \brief Integer that determines the level of logging to perform
   int verbosity = 0;
   int v_error=0;
-	int v_warning=1;
-	int v_message=2;
-	int v_debug=3;
-	std::string logmessage;
-		
-	int get_ok;	
+  int v_warning=1;
+  int v_message=2;
+  int v_debug=3;
+  std::string logmessage;		
+  int get_ok;	
 
+  /// \Integer flags that control additional output to the PhaseIITree
+  int muonMCTruth_fill = 0; //Output the MC truth information
+  int muonRecoDebug_fill = 0; //Outputs results of Reconstruction at each step (best fits, FOMs, etc.)
+  int muonTruthRecoDiff_fill = 0; //Output difference in truth and reconstructed values
 };
 
 
