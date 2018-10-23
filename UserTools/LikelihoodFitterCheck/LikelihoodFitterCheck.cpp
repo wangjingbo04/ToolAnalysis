@@ -14,6 +14,7 @@ bool LikelihoodFitterCheck::Initialise(std::string configfile, DataModel &data){
   m_variables.Get("OutputFile", output_filename);
   m_variables.Get("ifPlot2DFOM", ifPlot2DFOM);
   m_variables.Get("ShowEvent", fShowEvent);
+  m_variables.Get("MeanTimeCalculatorType", fMeanTimeCalculatorType);
   fOutput_tfile = new TFile(output_filename.c_str(), "recreate");
   
   // Histograms
@@ -95,7 +96,7 @@ bool LikelihoodFitterCheck::Execute(){
 	VertexGeometry* myvtxgeo = VertexGeometry::Instance();
   myvtxgeo->LoadDigits(fDigitList);
   myOptimizer->LoadVertexGeometry(myvtxgeo); //Load vertex geometry
-  myOptimizer->SetMeanTimeCalculatorType(1); //
+  myOptimizer->SetMeanTimeCalculatorType(fMeanTimeCalculatorType); //
   //parallel direction
   double dl = 1.0; // step size  = 1 cm along the track
   double dx = dl * trueDirX;

@@ -3,4 +3,5 @@ verbosity 3
 OutputFile ./LikelihoodFitterCheck.root
 ifPlot2DFOM 1
 ShowEvent 62
+MeanTimeCalculatorType 1
 

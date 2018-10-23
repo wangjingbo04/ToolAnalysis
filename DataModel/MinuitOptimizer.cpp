@@ -1639,7 +1639,7 @@ double MinuitOptimizer::FindSimpleTimeProperties(VertexGeometry* vtxgeo) {
 	}
 	
 	// most probable time
-	if(fMeanTimeCalculatorType == 1) {
+	else if(fMeanTimeCalculatorType == 1) {
 		double sigma = 0.0;
 		double deltaAngle = 0.0;
 		double weight = 0.0;
@@ -1680,7 +1680,9 @@ double MinuitOptimizer::FindSimpleTimeProperties(VertexGeometry* vtxgeo) {
     delete hDeltaTime; hDeltaTime = 0;
 	}
 	
-	else std::cout<<"MinuitOptimizer Error: Wrong type of Mean time calculator! "<<std::endl;
+	else {
+	  std::cout<<"MinuitOptimizer Error: Wrong type of Mean time calculator! "<<std::endl;
+  }
   
   return meanTime; //return expected vertex time
 }

@@ -38,6 +38,9 @@ class LikelihoodFitterCheck: public Tool {
   /// \brief Selecte a particular event to show
   int fShowEvent = 0;
   
+  /// \brief fit prameters
+ 	int fMeanTimeCalculatorType;
+  
  	std::vector<RecoDigit>* fDigitList = 0;
  	RecoVertex* fTrueVertex = 0;
  	
@@ -45,6 +48,7 @@ class LikelihoodFitterCheck: public Tool {
  	TH2D* Likelihood2D = 0;
  	TGraph *gr_parallel = 0;
  	TGraph *gr_transverse = 0;
+ 	
  	
  	/// verbosity levels: if 'verbosity' < this level, the message type will be logged.
   int verbosity=-1;
