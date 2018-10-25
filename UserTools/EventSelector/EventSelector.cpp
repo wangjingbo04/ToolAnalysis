@@ -238,25 +238,24 @@ bool EventSelector::EventSelectionByMCTruthInfo() {
   	  || (trueVtxZ > fidcutz) ){
   return false;
   }	 
-  /*	
-	// mrd cut
-	double muonStopX, muonStopY, muonStopZ;
-	muonStopX = fMuonStopVertex->GetPosition().X();
-	muonStopY = fMuonStopVertex->GetPosition().Y();
-	muonStopZ = fMuonStopVertex->GetPosition().Z();
-	double mrdStartZ = fGeometry.GetMrdStart()*100-168.1;
-	double mrdEndZ = fGeometry.GetMrdEnd()*100-168.1;
-	double mrdHeightY = fGeometry.GetMrdHeight()*100;                                                                                     
-	double mrdWidthX = fGeometry.GetMrdWidth()*100;
-	cout<<"muonStopX, Y, Z = "<<muonStopX<<", "<<muonStopY<<", "<<muonStopZ<<endl;
-	cout<<"mrdStartZ, mrdStopZ = "<<mrdStartZ<<", "<<mrdEndZ<<endl;
-	cout<<"mrdWidthX = "<<mrdWidthX<<endl;
-	cout<<"mrdHeightY = "<<mrdHeightY<<endl;
-	if(muonStopZ<mrdStartZ || muonStopZ>mrdEndZ
-		|| muonStopX<-1.0*mrdWidthX || muonStopX>mrdWidthX
-		|| muonStopY<-1.0*mrdHeightY || muonStopY>mrdHeightY) {
-	  return false;	
-	}*/
+  // mrd cut
+  double muonStopX, muonStopY, muonStopZ;
+  muonStopX = fMuonStopVertex->GetPosition().X();
+  muonStopY = fMuonStopVertex->GetPosition().Y();
+  muonStopZ = fMuonStopVertex->GetPosition().Z();
+  double mrdStartZ = fGeometry.GetMrdStart()*100-168.1;
+  double mrdEndZ = fGeometry.GetMrdEnd()*100-168.1;
+  double mrdHeightY = fGeometry.GetMrdHeight()*100;                                                                                     
+  double mrdWidthX = fGeometry.GetMrdWidth()*100;
+  cout<<"muonStopX, Y, Z = "<<muonStopX<<", "<<muonStopY<<", "<<muonStopZ<<endl;
+  cout<<"mrdStartZ, mrdStopZ = "<<mrdStartZ<<", "<<mrdEndZ<<endl;
+  cout<<"mrdWidthX = "<<mrdWidthX<<endl;
+  cout<<"mrdHeightY = "<<mrdHeightY<<endl;
+  if(muonStopZ<mrdStartZ || muonStopZ>mrdEndZ
+  	|| muonStopX<-1.0*mrdWidthX || muonStopX>mrdWidthX
+  	|| muonStopY<-1.0*mrdHeightY || muonStopY>mrdHeightY) {
+    return false;	
+  }
   return true;
 }
 
