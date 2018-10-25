@@ -13,30 +13,32 @@
 
 
 #Choose your 
-CONFIG=PhaseIIRecoTruth
+CONFIG=PhaseIIReco
 DATADIR=/AnnieShare/p2r_data/
-#cd $HOMEDIR
-#source Setup.sh
 
 LAPPD_NAMEBASE=wcsim_lappd_0
 PMT_NAMEBASE=wcsim_0
-OUTPUT_NAMEBASE=Recotest_truth_5LAPPD_0
+OUTPUT_NAMEBASE=RecoGridSeed_5LAPPD_0
 
 #These will stay fixed if you're using this on the docker
 HOMEDIR=/ToolAnalysis/
 CONFIGDIR=/ToolAnalysis/configfiles/${CONFIG}/
+cd ${HOMEDIR}
+source ${HOMEDIR}Setup.sh
 
-declare -a firstind=(1)
-declare -a secondind=(0 1 2 3 4 5)
+declare -a firstind=(1 2)
+declare -a secondind=(0 1 2 3 4 5 6 7 8 9)
 NUMFIRST=$((${#firstind[@]}-1))
 NUMSEC=$((${#secondind[@]}-1))
 for l in $(seq 0 $NUMFIRST)
     do
-    echo $l
     for k in $(seq 0 $NUMSEC)
         do
         if (($k == 0)); then
             if (($l == 0)); then
+                 echo "THE FIRST"
+                 echo $l
+                 echo $k
                 CURRENT_NAME_PMT=${PMT_NAMEBASE}.${firstind[l]}.${secondind[k]}.root
                 CURRENT_NAME_LAPPD=${LAPPD_NAMEBASE}.${firstind[l]}.${secondind[k]}.root
                 CURRENT_OUTPUT=${OUTPUT_NAMEBASE}.${firstind[l]}.${secondind[k]}.root
@@ -48,9 +50,13 @@ for l in $(seq 0 $NUMFIRST)
                 cd ${HOMEDIR}
                 ./Analyse $CONFIG
                 continue
-            fi
+             fi
         fi
-        prevl=$((l-1))
+        if (($k == 0)); then
+            prevl=$((l-1))
+        else
+            prevl=$l
+        fi
         prevk=$((k-1))
         PREV_NAME_PMT=${PMT_NAMEBASE}.${firstind[$prevl]}.${secondind[$prevk]}.root
         PREV_NAME_LAPPD=${LAPPD_NAMEBASE}.${firstind[$prevl]}.${secondind[$prevk]}.root
